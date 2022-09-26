@@ -9,17 +9,21 @@
 ### 1. Initialize the `Me3` instance
 
 ```ts
-import pkg from '@me3/keysmith';
-const {Me3} = pkg;
+import pkg from "@me3/keysmith";
+const { Me3 } = pkg;
 
 const me3 = new Me3({
-    endpoint: '<Me3 Api endpoint, please request from the Me3 team>',
-    companyId: '<Me3 company id, please request from the Me3 team>',
-    client_id: '<Google api oauth2 client id, please obtain it from google api console>',
-    client_secret: '<Google api oauth2 client secret, please obtain it from google api console>',
-    redirect_uris: ['<Google api oauth2 redirect urls, this is a redirect url of your choice that was registered with google api console>'],
+  endpoint: "<Me3 Api endpoint, please request from the Me3 team>",
+  companyId: "<Me3 company id, please request from the Me3 team>",
+  client_id:
+    "<Google api oauth2 client id, please obtain it from google api console>",
+  client_secret:
+    "<Google api oauth2 client secret, please obtain it from google api console>",
+  redirect_uris: [
+    "<Google api oauth2 redirect urls, this is a redirect url of your choice that was registered with google api console>",
+  ],
 });
-``` 
+```
 
 You can get the google oauth credentials from their console, example [here](https://developers.google.com/fit/android/get-api-key#request_an_oauth_20_client_id_in_the)
 
@@ -51,8 +55,9 @@ You can check the success or failure of obtaining the GToken from the return val
 ```ts
 const wallets = await me3.getWallets();
 ```
-   
+
 **It will carry out**
+
 - If new user?
   - create secret json / qr code then save to gdrive for new user
   - generates the wallets using above secure file for new user
@@ -61,6 +66,8 @@ const wallets = await me3.getWallets();
   - restore the wallets based above information
 - There would be wallets (address / privateKey / chainName / walletName )
 
+## Recommend to use `CLI`
+
+- ⚠️ **Please change the parameters at `cli/index.js L8~L17`**
 - `yarn && yarn build` for build
-- please change the parameters at `cli/index.js L9~L13`
 - `yarn cli:prod` for cli app execute
