@@ -29,7 +29,8 @@ export default class Me3 {
     });
 
     const companyHeader = {
-      "Company-ID": credential.companyId,
+      "Company-ID": 2000,
+      "Partner-ID": credential.partnerId,
     };
     const _this: Me3 = this;
     this._client.interceptors.request.use(function (

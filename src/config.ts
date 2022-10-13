@@ -5,7 +5,7 @@ const DriveName = {
 
 interface ME3Config {
   endpoint: string;
-  companyId: number;
+  partnerId: string;
   client_id: string;
   client_secret: string;
   redirect_uris: [string];

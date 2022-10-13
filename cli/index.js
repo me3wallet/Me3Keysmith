@@ -7,7 +7,7 @@ const { Me3 } = require("../lib");
 (async () => {
   const me3 = new Me3({
     endpoint: '',
-    companyId: 0,
+    partnerId: '',
     client_id: '',
     client_secret: '',
     redirect_uris: ['http://localhost:3000']
