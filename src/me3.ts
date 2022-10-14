@@ -64,11 +64,10 @@ export default class Me3 {
       params: { faceId: email },
     });
 
-    if (_.isEmpty(data)) {
+    this._token = _.get(data, "token", "");
+    if (_.isEmpty(data) || _.isEmpty(this._token)) {
       throw Error("Error! Operation failed.Please contact me3 team!");
     }
-
-    this._token = _.get(data, "token", "");
     const userId = _.get(data, "key.uid", undefined);
 
     const isNewUser = await this._loadBackupFile(userId);
