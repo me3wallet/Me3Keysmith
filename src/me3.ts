@@ -63,6 +63,11 @@ export default class Me3 {
     const { data } = await this._client.post("/api/light/register", null, {
       params: { faceId: email },
     });
+
+    if (_.isEmpty(data)) {
+      throw Error("Error! Operation failed.Please contact me3 team!");
+    }
+
     this._token = _.get(data, "token", "");
     const userId = _.get(data, "key.uid", undefined);
 
