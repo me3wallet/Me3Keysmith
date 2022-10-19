@@ -14,7 +14,7 @@ const { Me3 } = pkg;
 
 const me3 = new Me3({
   endpoint: "<Me3 Api endpoint, please request from the Me3 team>",
-  companyId: "<Me3 company id, please request from the Me3 team>",
+  partnerId: "<Me3 partner id, please request from the Me3 team>",
   client_id:
     "<Google api oauth2 client id, please obtain it from google api console>",
   client_secret:
