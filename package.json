@@ -38,8 +38,7 @@
     "postversion": "git push && git push --tags",
     "check-updates": "npx npm-check-updates",
     "check-updates:minor": "npx npm-check-updates --target minor",
-    "check-updates:patch": "npx npm-check-updates --target patch",
-    "install": "npm run build"
+    "check-updates:patch": "npx npm-check-updates --target patch"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
