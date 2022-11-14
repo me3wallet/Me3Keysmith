@@ -81,14 +81,23 @@ export default class Me3 {
     const { key, salt, password } = this._secret!;
     const decryptedKey = safe.decrypt(key, password, salt);
     for (const w of wallets) {
-      this._client.post("/api/light/addWallet", null, {
-        params: {
-          chainName: w.chainName,
-          walletName: w.walletName,
-          walletAddress: w.walletAddress,
-          secret: safe.encrypt(w.secretRaw, decryptedKey, salt),
-        },
-      });
+      await Promise.all([
+        this._client.post("/api/light/addWallet", null, {
+          params: {
+            chainName: w.chainName,
+            walletName: w.walletName,
+            walletAddress: w.walletAddress,
+            secret: safe.encrypt(w.secretRaw, decryptedKey, salt),
+            needFocus: true,
+          },
+        }),
+        this._client.post("/api/mainChain/ping", null, {
+          params: {
+            chainName: w.chainName,
+            status: 3,
+          },
+        }),
+      ]);
     }
     return wallets;
   }
