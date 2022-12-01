@@ -11,4 +11,9 @@ interface ME3Config {
   redirect_uris: [string];
 }
 
-export { ME3Config, DriveName };
+interface RsaKey {
+  privateKey: string;
+  publicKey: string;
+}
+
+export { ME3Config, RsaKey, DriveName };

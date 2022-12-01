@@ -1,10 +1,6 @@
 import _ from "lodash";
 import CryptoJS from "crypto-js";
-
-function _paddingSpace(str: string, pad = 16) {
-  const paddedLen = str.length + pad - (str.length % pad);
-  return _.padEnd(str, paddedLen);
-}
+import {paddingSpace} from "./common";
 
 export default {
   encrypt(str: string, faceId: string, salt: string) {
@@ -18,7 +14,7 @@ export default {
       iterations: 1,
       hasher: CryptoJS.algo.SHA512,
     });
-    str = _paddingSpace(str);
+    str = paddingSpace(str);
     const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(str), key, {
       iv,
       mode: CryptoJS.mode.CBC,
