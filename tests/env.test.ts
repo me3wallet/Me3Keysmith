@@ -2,7 +2,7 @@ import {ME3Config} from "../src/config";
 
 export const CONFIG: ME3Config = {
   endpoint: '',
-  companyId: 0,
+  partnerId: '0',
   client_id: '',
   client_secret: '',
   redirect_uris: ['']
