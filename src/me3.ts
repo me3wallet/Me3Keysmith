@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import {v4 as uuid} from 'uuid';
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import * as bip39 from 'bip39';
 
@@ -66,16 +65,16 @@ export default class Me3 {
     await this._exchangeKey(email!);
 
     const {data} = await this._client.post('/api/light/register', null, {
-      params: {faceId: email},
+      params: {aesPwd: email},
     });
 
     this._token = _.get(data, 'token', '');
     if (_.isEmpty(data) || _.isEmpty(this._token)) {
       throw Error('Error! Operation failed.Please contact me3 team!');
     }
-    const userId = _.get(data, 'key.uid', undefined);
 
-    const isNewUser = await this._loadBackupFile(userId);
+    const serverEncrypted = _.get(data, 'key', undefined);
+    const isNewUser = await this._loadBackupFile(serverEncrypted);
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`);
       return await this._loadWallets();
@@ -175,7 +174,7 @@ export default class Me3 {
       .value();
   }
 
-  private async _loadBackupFile(userId?: number) {
+  private async _loadBackupFile(serverEncrypted?: string) {
     const funcFileId = async (fileId?: string) =>
       this._client
         .post('/api/light/userfileId', null, {
@@ -183,16 +182,19 @@ export default class Me3 {
         })
         .then((resp) => _.get(resp, 'data.fileId'));
 
-    const fileId = await funcFileId('');
-
-    if (!_.isEmpty(fileId)) {
-      this._secret = await this._gClient.loadFile(fileId);
-      // False for already exist user
-      return false;
+    if (_.isEmpty(serverEncrypted)) {
+      const fileId = await funcFileId('');
+      if (!_.isEmpty(fileId)) {
+        this._secret = await this._gClient.loadFile(fileId);
+        // False for already exist user
+        return false;
+      }
     }
 
-    const password = uuid();
-    const salt = uuid();
+    const {uid, password, salt} = JSON.parse(await v2.rsaDecrypt(
+      serverEncrypted!,
+      this._myRsaKey!.privateKey
+    ));
 
     const randStr = RandomString.generate({
       charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
@@ -206,7 +208,7 @@ export default class Me3 {
 
     const secret = _.pickBy(
       {
-        uid: userId,
+        uid,
         password,
         salt,
         key,
@@ -241,7 +243,7 @@ export default class Me3 {
       '/api/light/exchange/key',
       {
         email,
-        publicKey: this._myRsaKey.publicKey
+        publicKey: this._myRsaKey?.publicKey
       }
     );
     this._hisRsaPub = data;
