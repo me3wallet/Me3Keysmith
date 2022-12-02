@@ -18,18 +18,18 @@ export function encrypt(plain: string, commSecure: CommSecure): CommData {
   const chachaKey = randomBytes(32);
   const data = chacha.encrypt(chachaKey, retData)
     .toString('base64');
-  const secure = rsa.encrypt(
+  const secret = rsa.encrypt(
     commSecure.rsaKey,
     chachaKey,
     commSecure.isPubKey
   ).toString('base64');
-  return {data, secure};
+  return {data, secret};
 }
 
 export function decrypt(data: CommData, commSecure: CommSecure): string {
   const chachaKey = rsa.decrypt(
     commSecure.rsaKey,
-    Buffer.from(data.secure, 'base64'),
+    Buffer.from(data.secret, 'base64'),
     commSecure.isPubKey
   );
   let decryped = chacha.decrypt(

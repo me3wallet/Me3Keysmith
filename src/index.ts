@@ -1,1 +1,1 @@
-export { default as Me3 } from "./me3";
+export {default as Me3} from "./me3";

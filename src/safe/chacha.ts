@@ -5,6 +5,10 @@ const ALGO_NAME = 'chacha20-poly1305';
 const AUTHTAG_LEN = 16;
 const NONCE_LEN = 12;
 
+export function genPassword(): Buffer {
+  return randomBytes(32);
+}
+
 export function encrypt(key: Buffer, plain: Buffer): Buffer {
   const nonce = randomBytes(NONCE_LEN);
   const cipher = crypto.createCipheriv(ALGO_NAME, key, nonce, {

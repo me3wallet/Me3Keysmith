@@ -1,5 +1,7 @@
-import {randomBytes} from "crypto";
-import {aes, chacha, rsa, v1, v2} from "../src/safe";
+import {v1, v2, aes} from "../src/safe";
+import * as rsa from '../src/safe/rsa';
+import * as chacha from '../src/safe/chacha';
+
 import {ALICE, RAWKEY} from "./env.test";
 
 describe('Safe testing', () => {
@@ -37,7 +39,7 @@ describe('Safe testing', () => {
       expect(rsa.decrypt(key.privateKey, encoded).toString('utf8')).toEqual(plain);
     });
     it('Chacha testing', () => {
-      const chachaKey = randomBytes(32);
+      const chachaKey = chacha.genPassword();
       const plainText = `Original buffer is: GeeksforGeeks
         Cropped buffer is:eeksforGeek
         Cropped buffer is: ksfor

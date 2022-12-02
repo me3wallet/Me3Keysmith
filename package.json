@@ -77,7 +77,6 @@
     "open": "^8.4.0",
     "qr-with-logo": "^1.0.5",
     "qrcode": "^1.5.1",
-    "randomstring": "^1.2.2",
-    "uuid": "^9.0.0"
+    "randomstring": "^1.2.2"
   }
 }
