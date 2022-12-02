@@ -2,11 +2,11 @@ import _ from 'lodash';
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import * as bip39 from 'bip39';
 
-import {DriveName, ME3Config, RsaKey} from './config';
+import {DriveName, ME3Config} from './config';
 import createWallet from './wallet';
 import Google from './google';
 import path from 'path';
-import {v2} from "./safe";
+import {aes, generateRsaKeyPair, v2} from "./safe";
 
 const QRLogo = require('qr-with-logo');
 const RandomString = require('randomstring');
@@ -14,11 +14,12 @@ const RandomString = require('randomstring');
 export default class Me3 {
   private readonly _gClient: Google;
   private _token?: string;
-  private _secret?: any;
+  private _apiSecret?: string;
+  private _userSecret?: any;
   private readonly _client: AxiosInstance;
 
-  private _myRsaKey?: RsaKey;
-  private _hisRsaPub?: string;
+  private _myRsaPri?: string;
+  private _serverRsaPub?: string;
 
   constructor(credential: ME3Config) {
     this._gClient = new Google(
@@ -40,14 +41,35 @@ export default class Me3 {
     ) {
       config.headers = _.chain(companyHeader)
         .set('Light-token', _this._token)
+        .set('Api-secret', _this._apiSecret)
         .pickBy(_.identity)
         .merge(config.headers)
         .value();
+
+      _this._apiSecret = undefined;
       return config;
     });
     this._client.interceptors.response.use(function (resp: AxiosResponse) {
+      const secret = _.get(resp.headers, 'Api-secret');
       const {data} = resp.data;
-      resp.data = data;
+
+      if (_.isEmpty(secret)) {
+        resp.data = data;
+      } else {
+        const parsed = v2.decrypt(
+          {
+            secret,
+            data: data.toString()
+          },
+          {
+            aesPwd: _.get(_this._userSecret, 'password', undefined),
+            aesSalt: _.get(_this._userSecret, 'salt', undefined),
+            rsaKey: _this._myRsaPri!,
+            isPubKey: false
+          }
+        );
+        resp.data = JSON.parse(parsed);
+      }
       return resp;
     });
   }
@@ -73,8 +95,8 @@ export default class Me3 {
       throw Error('Error! Operation failed.Please contact me3 team!');
     }
 
-    const serverEncrypted = _.get(data, 'key', undefined);
-    const isNewUser = await this._loadBackupFile(serverEncrypted);
+    const userDetail = _.get(data, 'userDetail', undefined);
+    const isNewUser = await this._loadBackupFile(userDetail);
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`);
       return await this._loadWallets();
@@ -82,8 +104,9 @@ export default class Me3 {
 
     console.log(`New User, Create wallets for ${email}!`);
     const wallets = await this._createWallets();
-    const {key, salt, password} = this._secret!;
-    const decryptedKey = v2.aesDecrypt(key, password, salt);
+    const {key, salt, password} = this._userSecret!;
+    const decryptedKey = aes.decrypt(key, password, salt);
+
     for (const w of wallets) {
       await Promise.all([
         this._client.post('/api/light/addWallet', null, {
@@ -91,7 +114,7 @@ export default class Me3 {
             chainName: w.chainName,
             walletName: w.walletName,
             walletAddress: w.walletAddress,
-            secret: v2.aesEncrypt(w.secretRaw, decryptedKey, salt),
+            secret: aes.encrypt(w.secretRaw, decryptedKey, salt).toString('base64'),
             needFocus: true,
           },
         }),
@@ -149,8 +172,8 @@ export default class Me3 {
   }
 
   private async _loadWallets() {
-    const {password, key, salt} = this._secret!;
-    const decryptedKey = v2.aesDecrypt(key, password, salt);
+    const {password, key, salt} = this._userSecret!;
+    const decryptedKey = aes.decrypt(key, password, salt);
 
     const {data} = await this._client.get('/api/light/secretList');
     return _.chain(data)
@@ -160,7 +183,7 @@ export default class Me3 {
             chainName: w.chainName,
             walletName: w.walletName,
             walletAddress: w.walletAddress,
-            secret: v2.aesDecrypt(w.secret, decryptedKey, salt),
+            secret: aes.decrypt(Buffer.from(w.secret, 'base64'), decryptedKey, salt),
           };
         } catch (e) {
           console.log(
@@ -174,33 +197,26 @@ export default class Me3 {
       .value();
   }
 
-  private async _loadBackupFile(serverEncrypted?: string) {
+  private async _loadBackupFile(userDetail?: any) {
     const funcFileId = async (fileId?: string) =>
-      this._client
-        .post('/api/light/userfileId', null, {
-          params: {fileId},
-        })
-        .then((resp) => _.get(resp, 'data.fileId'));
+      this._client.post('/api/light/userfileId', null, {
+        params: {fileId},
+      }).then((resp) => _.get(resp, 'data.fileId'));
 
-    if (_.isEmpty(serverEncrypted)) {
+    if (_.isEmpty(userDetail)) {
       const fileId = await funcFileId('');
       if (!_.isEmpty(fileId)) {
-        this._secret = await this._gClient.loadFile(fileId);
+        this._userSecret = await this._gClient.loadFile(fileId);
         // False for already exist user
         return false;
       }
     }
-
-    const {uid, password, salt} = JSON.parse(await v2.rsaDecrypt(
-      serverEncrypted!,
-      this._myRsaKey!.privateKey
-    ));
-
+    const {uid, password, salt} = userDetail;
     const randStr = RandomString.generate({
       charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
       length: 40,
     });
-    const key = v2.aesEncrypt(
+    const key = aes.encrypt(
       `${randStr}${new Date().getTime()}`,
       password,
       salt
@@ -220,32 +236,34 @@ export default class Me3 {
 
     const [, jsonId] = await Promise.all([
       this._gClient.saveFiles(
-        this._gClient.base642Readable(qrCode),
+        this._gClient.b642Readable(qrCode),
         DriveName.qr,
         'image/png'
       ),
       this._gClient.saveFiles(
-        this._gClient.string2Readable(jsonStr),
+        this._gClient.str2Readable(jsonStr),
         DriveName.json,
         'application/json'
       ),
     ]);
     await funcFileId(jsonId!);
-    this._secret = secret;
+    this._userSecret = secret;
 
     // True for new user
     return true;
   }
 
   private async _exchangeKey(email: string) {
-    this._myRsaKey = await v2.rsaKeyPair();
+    const pair = await generateRsaKeyPair();
     const {data} = await this._client.post(
       '/api/light/exchange/key',
       {
         email,
-        publicKey: this._myRsaKey?.publicKey
+        publicKey: pair.publicKey
       }
     );
-    this._hisRsaPub = data;
+
+    this._myRsaPri = pair.privateKey;
+    this._serverRsaPub = data;
   }
 }

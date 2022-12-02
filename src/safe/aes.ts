@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {createCipheriv, createDecipheriv, pbkdf2Sync} from "crypto";
 
-const ENC_ALGO = 256
+const ENC_ALGO = 256;
 const KEY_SIZE = ENC_ALGO / 8;
 const IV_SIZE = 128 / 8;
 

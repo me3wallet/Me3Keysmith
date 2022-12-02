@@ -24,7 +24,7 @@ interface CommSecure {
 }
 
 interface CommData {
-  secure: string;
+  secret: string;
   data: string;
 }
 

@@ -1,10 +1,7 @@
-import * as v1 from './aes';
-import * as v2 from './v2';
+export * as v1 from './aes';
+export * as v2 from './v2';
+export * as aes from './aes';
 
-import * as aes from './aes';
-import * as rsa from './rsa';
-import * as chacha from './chacha';
+import {genKeyPair} from './rsa';
 
-export {
-  v1, v2, aes, rsa, chacha
-}
+export const generateRsaKeyPair = genKeyPair;

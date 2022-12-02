@@ -25,7 +25,7 @@ describe('Google class testing', () => {
     expect(email).toBeTruthy();
 
     const imgId = await gClient.saveFiles(
-      gClient.base642Readable(TEST_QR),
+      gClient.b642Readable(TEST_QR),
       'hello.png',
       'image/png'
     );
@@ -34,7 +34,7 @@ describe('Google class testing', () => {
 
     const secure = JSON.stringify(ALICE);
     const jsonId = await gClient.saveFiles(
-      gClient.string2Readable(secure),
+      gClient.str2Readable(secure),
       'hello.json',
       'application/json'
     );
