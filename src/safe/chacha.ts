@@ -12,26 +12,29 @@ export function genPassword(): Buffer {
 export function encrypt(key: Buffer, plain: Buffer): Buffer {
   const nonce = randomBytes(NONCE_LEN);
   const cipher = crypto.createCipheriv(ALGO_NAME, key, nonce, {
-      authTagLength: AUTHTAG_LEN
-    }),
-    encrypted = Buffer.concat([
-      cipher.update(plain),
-      cipher.final()
-    ]),
-    tag = cipher.getAuthTag();
-  return Buffer.concat([tag, encrypted, nonce]);
+    authTagLength: AUTHTAG_LEN
+  });
+  return Buffer.concat([
+    //---Nonce---
+    nonce,
+    //---Ciper texts---
+    cipher.update(plain),
+    cipher.final(),
+    //---Auth Tag---
+    cipher.getAuthTag()
+  ]);
 }
 
 export function decrypt(key: Buffer, encrypted: Buffer): Buffer {
-  const nonce = encrypted.subarray(-NONCE_LEN);
+  const nonce = encrypted.subarray(0, NONCE_LEN);
   const decipher = crypto.createDecipheriv(ALGO_NAME, key, nonce, {
     authTagLength: AUTHTAG_LEN
   });
-  decipher.setAuthTag(encrypted.subarray(0, AUTHTAG_LEN));
+  decipher.setAuthTag(encrypted.subarray(-AUTHTAG_LEN));
   return Buffer.concat([
     decipher.update(encrypted.subarray(
-      AUTHTAG_LEN,
-      -NONCE_LEN
+      NONCE_LEN,
+      -AUTHTAG_LEN
     )),
     decipher.final()
   ]);
