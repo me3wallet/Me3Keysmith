@@ -1,4 +1,4 @@
-import {v1, v2, aes} from "../src/safe";
+import {aes, v1, v2} from "../src/safe";
 import * as rsa from '../src/safe/rsa';
 import * as chacha from '../src/safe/chacha';
 
@@ -40,10 +40,7 @@ describe('Safe testing', () => {
     });
     it('Chacha testing', () => {
       const chachaKey = chacha.genPassword();
-      const plainText = `Original buffer is: GeeksforGeeks
-        Cropped buffer is:eeksforGeek
-        Cropped buffer is: ksfor
-        Cropped buffer is: GeeksforGeeks`;
+      const plainText = 'Hello world';
 
       const encrypted = chacha.encrypt(chachaKey, Buffer.from(plainText, 'utf8'));
       const decrypted = chacha.decrypt(chachaKey, encrypted);
