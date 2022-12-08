@@ -1,9 +1,9 @@
+import _ from "lodash";
+import {randomBytes} from "crypto";
 import * as aes from './aes';
 import * as rsa from './rsa';
 import * as chacha from './chacha';
 import {CommData, CommSecure} from "../config";
-import _ from "lodash";
-import {randomBytes} from "crypto";
 
 export function encrypt(plain: string, commSecure: CommSecure): CommData {
   let retData = Buffer.from(plain, "utf8");
@@ -16,8 +16,7 @@ export function encrypt(plain: string, commSecure: CommSecure): CommData {
   }
 
   const chachaKey = randomBytes(32);
-  const data = chacha.encrypt(chachaKey, retData)
-    .toString('base64');
+  const data = chacha.encrypt(chachaKey, retData).toString('base64');
   const secret = rsa.encrypt(
     commSecure.rsaKey,
     chachaKey,

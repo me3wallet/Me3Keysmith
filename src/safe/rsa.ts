@@ -21,7 +21,6 @@ export async function genKeyPair(): Promise<RsaKey> {
     true,
     ['encrypt', 'decrypt']
   );
-
   return {
     privateKey: await _cryptoKey2B64(privateKey, false),
     publicKey: await _cryptoKey2B64(publicKey, true),
@@ -53,7 +52,8 @@ async function _cryptoKey2B64(cryptoKey: CryptoKey, isPubKey: boolean = true): P
 function _b642RsaKey(b64Str: string, isPubKey: boolean = true): KeyObject {
   const buf = Buffer.from(b64Str, 'base64');
 
-  return isPubKey ? createPublicKey({
+  return isPubKey
+    ? createPublicKey({
       key: buf,
       format: 'der',
       type: 'spki'
