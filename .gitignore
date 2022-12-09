@@ -1,8 +1,7 @@
-.idea/
-.vscode/
+**/node_modules/
+**/.env
+**/dist
 
-lib/
-node_modules/
-coverage/
-
-**/.DS_Store
+**/.idea
+**/.vscode
+**/*.log
