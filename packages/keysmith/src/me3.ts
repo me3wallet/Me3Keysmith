@@ -1,13 +1,13 @@
+import path from 'path'
 import _ from 'lodash'
 import QRLogo from 'qr-with-logo'
 import RandomString from 'randomstring'
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios'
-import * as bip39 from 'bip39'
 
+import * as bip39 from 'bip39'
 import {CommData, DriveName, ME3Config} from './config'
 import createWallet from './wallet'
 import Google from './google'
-import path from 'path'
 import {aes, rsa, v2} from './safe'
 
 export default class Me3 {
@@ -97,7 +97,7 @@ export default class Me3 {
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
-        secret: aes.encrypt(w.secretRaw, decryptedKey, salt).toString('base64'),
+        secret: aes.encrypt(w.secretRaw, decryptedKey, salt),
         needFocus: true,
       })
 
@@ -183,7 +183,7 @@ export default class Me3 {
             chainName: w.chainName,
             walletName: w.walletName,
             walletAddress: w.walletAddress,
-            secret: aes.decrypt(Buffer.from(w.secret, 'base64'), decryptedKey, salt),
+            secret: aes.decrypt(w.secret, decryptedKey, salt),
           }
         } catch (e) {
           console.log(
@@ -217,10 +217,7 @@ export default class Me3 {
       length: 40,
     })
     const key = aes.encrypt(`${randStr}${new Date().getTime()}`, password, salt)
-    const secret = _.pickBy(
-      {uid, password, salt, key},
-      _.identity
-    )
+    const secret = _.pickBy({uid, password, salt, key}, _.identity)
     const jsonStr = JSON.stringify(secret)
     const qrCode = await this._generateQR(jsonStr)
 

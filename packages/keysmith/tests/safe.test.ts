@@ -11,12 +11,12 @@ describe('Safe testing', () => {
         RAWKEY,
         ALICE.password,
         ALICE.salt
-      ).toString('base64')
+      )
       expect(encrypted).toEqual(ALICE.key)
     })
     it('V1::decrypt', function () {
       const decrypted = v1.decrypt(
-        Buffer.from(ALICE.key, 'base64'),
+        ALICE.key,
         ALICE.password,
         ALICE.salt
       )
