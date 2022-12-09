@@ -7,8 +7,8 @@ import {
   publicDecrypt,
   publicEncrypt,
   subtle
-} from "crypto";
-import {RsaKey} from "../config";
+} from 'crypto'
+import {RsaKey} from '../config'
 
 export async function genKeyPair(): Promise<RsaKey> {
   const {publicKey, privateKey} = await subtle.generateKey(
@@ -20,37 +20,37 @@ export async function genKeyPair(): Promise<RsaKey> {
     },
     true,
     ['encrypt', 'decrypt']
-  );
+  )
   return {
     privateKey: await _cryptoKey2B64(privateKey, false),
     publicKey: await _cryptoKey2B64(publicKey, true),
-  };
+  }
 }
 
-export function encrypt(b64Key: string, plain: Buffer, isPubKey: boolean = true): Buffer {
-  const keyObj = _b642RsaKey(b64Key, isPubKey);
+export function encrypt(b64Key: string, plain: Buffer, isPubKey = true): Buffer {
+  const keyObj = _b642RsaKey(b64Key, isPubKey)
   return isPubKey
     ? publicEncrypt(keyObj, plain)
-    : privateEncrypt(keyObj, plain);
+    : privateEncrypt(keyObj, plain)
 }
 
-export function decrypt(b64Key: string, encrypted: Buffer, isPubKey: boolean = false): Buffer {
-  const keyObj = _b642RsaKey(b64Key, isPubKey);
+export function decrypt(b64Key: string, encrypted: Buffer, isPubKey = false): Buffer {
+  const keyObj = _b642RsaKey(b64Key, isPubKey)
   return isPubKey
     ? publicDecrypt(keyObj, encrypted)
-    : privateDecrypt(keyObj, encrypted);
+    : privateDecrypt(keyObj, encrypted)
 }
 
-async function _cryptoKey2B64(cryptoKey: CryptoKey, isPubKey: boolean = true): Promise<string> {
+async function _cryptoKey2B64(cryptoKey: CryptoKey, isPubKey = true): Promise<string> {
   const arrayBuf = await subtle.exportKey(
     isPubKey ? 'spki' : 'pkcs8',
     cryptoKey
-  );
-  return Buffer.from(arrayBuf).toString('base64');
+  )
+  return Buffer.from(arrayBuf).toString('base64')
 }
 
-function _b642RsaKey(b64Str: string, isPubKey: boolean = true): KeyObject {
-  const buf = Buffer.from(b64Str, 'base64');
+function _b642RsaKey(b64Str: string, isPubKey = true): KeyObject {
+  const buf = Buffer.from(b64Str, 'base64')
 
   return isPubKey
     ? createPublicKey({
@@ -62,5 +62,5 @@ function _b642RsaKey(b64Str: string, isPubKey: boolean = true): KeyObject {
       key: buf,
       format: 'der',
       type: 'pkcs8',
-    });
+    })
 }

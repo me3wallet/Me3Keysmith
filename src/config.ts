@@ -1,7 +1,7 @@
 const DriveName = {
-  qr: "ME3_QR",
-  json: "ME3_KEY.json",
-};
+  qr: 'ME3_QR',
+  json: 'ME3_KEY.json',
+}
 
 interface ME3Config {
   endpoint: string;
@@ -28,4 +28,4 @@ interface CommData {
   data: string;
 }
 
-export {DriveName, ME3Config, RsaKey, CommSecure, CommData};
+export {DriveName, ME3Config, RsaKey, CommSecure, CommData}

@@ -70,6 +70,6 @@ const wallets = await me3.getWallets();
 
 ## Recommend to use `CLI`
 
-- ⚠️ **Please change the parameters at `cli/index.js L8~L17`**
+- ⚠️ **Please change the parameters at `cli/index.ts L8~L17`**
 - `yarn && yarn build` for build
 - `yarn cli:prod` for cli app execute
