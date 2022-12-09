@@ -2,7 +2,7 @@ import {AddressInfo} from 'net'
 import express from 'express'
 import _ from 'lodash'
 import dotenv from 'dotenv'
-import {Me3} from '@me3/keysmith'
+import Me3 from '@me3/keysmith'
 
 dotenv.config()
 
