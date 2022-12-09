@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import QRLogo from 'qr-with-logo'
+import RandomString from 'randomstring'
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios'
 import * as bip39 from 'bip39'
 
@@ -6,15 +8,11 @@ import {CommData, DriveName, ME3Config} from './config'
 import createWallet from './wallet'
 import Google from './google'
 import path from 'path'
-import {aes, generateRsaKeyPair, v2} from './safe'
-
-import QRLogo from 'qr-with-logo'
-import RandomString from 'randomstring'
+import {aes, rsa, v2} from './safe'
 
 export default class Me3 {
   private readonly _gClient: Google
   private _token?: string
-  private _apiSecret?: string
   private _userSecret?: any
   private readonly _client: AxiosInstance
 
@@ -45,12 +43,12 @@ export default class Me3 {
         .merge(config.headers)
         .value()
 
-      _this._apiSecret = undefined
       return config
     })
     this._client.interceptors.response.use(function (resp: AxiosResponse) {
       let {data} = resp.data
-      if ('type' in data && data.type === 'CommData') {
+      const isCipherBody = _.every(['data', 'secret'], _.partial(_.has, data))
+      if (isCipherBody) {
         data = _this.decryptData(data)
       }
       resp.data = data
@@ -95,15 +93,16 @@ export default class Me3 {
     const decryptedKey = aes.decrypt(key, password, salt)
 
     for (const w of wallets) {
-      const encryped = this.encryptData({
+      const encrypted = this.encryptData({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
         secret: aes.encrypt(w.secretRaw, decryptedKey, salt).toString('base64'),
         needFocus: true,
       })
+
       await Promise.all([
-        this._client.post('/api/light/addWallet', encryped),
+        this._client.post('/api/light/addWallet', encrypted),
         this._client.post('/api/mainChain/ping', null, {
           params: {
             chainName: w.chainName,
@@ -204,7 +203,8 @@ export default class Me3 {
         params: {fileId},
       }).then((resp) => _.get(resp, 'data.fileId'))
 
-    if (_.isEmpty(userDetail)) {
+    const {uid, password, salt} = userDetail
+    if (_.isNil(uid) || _.isNil(password) || _.isNil(salt)) {
       const fileId = await fetchOrUpdateGFileId('')
       if (!_.isEmpty(fileId)) {
         this._userSecret = await this._gClient.loadFile(fileId)
@@ -212,24 +212,13 @@ export default class Me3 {
         return false
       }
     }
-    const {uid, password, salt} = userDetail
     const randStr = RandomString.generate({
       charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
       length: 40,
     })
-    const key = aes.encrypt(
-      `${randStr}${new Date().getTime()}`,
-      password,
-      salt
-    )
-
+    const key = aes.encrypt(`${randStr}${new Date().getTime()}`, password, salt)
     const secret = _.pickBy(
-      {
-        uid,
-        password,
-        salt,
-        key,
-      },
+      {uid, password, salt, key},
       _.identity
     )
     const jsonStr = JSON.stringify(secret)
@@ -255,16 +244,16 @@ export default class Me3 {
   }
 
   private async _exchangeKey(email: string) {
-    const pair = await generateRsaKeyPair()
+    const {privateKey, publicKey} = await rsa.genKeyPair()
     const {data} = await this._client.post(
       '/api/light/exchange/key',
       {
         email,
-        publicKey: pair.publicKey
+        publicKey
       }
     )
 
-    this._myRsaPri = pair.privateKey
+    this._myRsaPri = privateKey
     this._serverRsaPub = data
   }
 }

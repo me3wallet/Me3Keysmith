@@ -1,4 +1,4 @@
-import Me3 from '../lib/me3'
+import {Me3} from '../src'
 import {CONFIG, REDIRECTED} from './env.test'
 
 describe('Me3 class testing', () => {

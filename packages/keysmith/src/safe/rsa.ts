@@ -1,29 +1,31 @@
 import {
   createPrivateKey,
   createPublicKey,
+  generateKeyPairSync,
   KeyObject,
   privateDecrypt,
   privateEncrypt,
   publicDecrypt,
-  publicEncrypt,
-  subtle
+  publicEncrypt
 } from 'crypto'
 import {RsaKey} from '../config'
 
 export async function genKeyPair(): Promise<RsaKey> {
-  const {publicKey, privateKey} = await subtle.generateKey(
-    {
-      name: 'RSA-OAEP',
-      modulusLength: 1024,
-      publicExponent: Uint8Array.from([0x01, 0x00, 0x01]),
-      hash: 'SHA-512',
+  const {publicKey, privateKey} = await generateKeyPairSync('rsa', {
+    modulusLength: 1024,
+    publicExponent: 0x10001,
+    publicKeyEncoding: {
+      format: 'der',
+      type: 'spki'
     },
-    true,
-    ['encrypt', 'decrypt']
-  )
+    privateKeyEncoding: {
+      format: 'der',
+      type: 'pkcs8'
+    }
+  })
   return {
-    privateKey: await _cryptoKey2B64(privateKey, false),
-    publicKey: await _cryptoKey2B64(publicKey, true),
+    privateKey: privateKey.toString('base64'),
+    publicKey: publicKey.toString('base64')
   }
 }
 
@@ -39,14 +41,6 @@ export function decrypt(b64Key: string, encrypted: Buffer, isPubKey = false): Bu
   return isPubKey
     ? publicDecrypt(keyObj, encrypted)
     : privateDecrypt(keyObj, encrypted)
-}
-
-async function _cryptoKey2B64(cryptoKey: CryptoKey, isPubKey = true): Promise<string> {
-  const arrayBuf = await subtle.exportKey(
-    isPubKey ? 'spki' : 'pkcs8',
-    cryptoKey
-  )
-  return Buffer.from(arrayBuf).toString('base64')
 }
 
 function _b642RsaKey(b64Str: string, isPubKey = true): KeyObject {
