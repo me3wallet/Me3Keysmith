@@ -6,9 +6,8 @@ import * as chacha from './chacha'
 import {CommData, CommSecure} from '../config'
 
 export function encrypt(plain: string, commSecure: CommSecure): CommData {
-  let retData = Buffer.from(plain, 'utf8')
   if (!_.isEmpty(commSecure.aesPwd) && !_.isEmpty(commSecure.aesSalt)) {
-    retData = aes.encrypt(
+    plain = aes.encrypt(
       plain,
       commSecure.aesPwd!,
       commSecure.aesSalt!
@@ -16,7 +15,10 @@ export function encrypt(plain: string, commSecure: CommSecure): CommData {
   }
 
   const chachaKey = randomBytes(32)
-  const data = chacha.encrypt(chachaKey, retData).toString('base64')
+  const data = chacha.encrypt(
+    chachaKey,
+    Buffer.from(plain, 'utf8')
+  ).toString('base64')
   const secret = rsa.encrypt(
     commSecure.rsaKey,
     chachaKey,
@@ -35,12 +37,10 @@ export function decrypt(data: CommData, commSecure: CommSecure): string {
     chachaKey,
     Buffer.from(data.data, 'base64')
   )
+
+  const ret = decryped.toString('utf8')
   if (_.isEmpty(commSecure.aesPwd) || _.isEmpty(commSecure.aesSalt)) {
-    return decryped.toString('utf8')
+    return ret
   }
-  return aes.decrypt(
-    decryped,
-    commSecure.aesPwd!,
-    commSecure.aesSalt!
-  )
+  return aes.decrypt(ret, commSecure.aesPwd!, commSecure.aesSalt!)
 }

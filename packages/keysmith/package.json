@@ -34,10 +34,7 @@
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags",
-    "check-updates": "npx npm-check-updates",
-    "check-updates:minor": "npx npm-check-updates --target minor",
-    "check-updates:patch": "npx npm-check-updates --target patch"
+    "postversion": "git push && git push --tags"
   },
   "devDependencies": {
     "@types/jest": "^28.1.7",
