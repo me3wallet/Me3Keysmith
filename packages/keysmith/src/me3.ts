@@ -126,7 +126,7 @@ export default class Me3 {
       rsaKey: this._serverPubRsa!,
       isPubKey: true
     }
-    if (withAES === true) {
+    if (withAES === true && !_.isEmpty(this._userSecret)) {
       const {password, key, salt} = this._userSecret!
       const decryptedKey = aes.decrypt(key, password, salt)
       _.merge(secure, {
@@ -137,12 +137,12 @@ export default class Me3 {
     return v2.encrypt(JSON.stringify(data), secure)
   }
 
-  decryptData(data: CommData, withAES = false) {
+  decryptData(data: CommData, withAES = false): any {
     const secure = {
       rsaKey: this._myPriRsa!,
       isPubKey: false
     }
-    if (withAES === true) {
+    if (withAES === true && !_.isEmpty(this._userSecret)) {
       const {password, key, salt} = this._userSecret!
       const decryptedKey = aes.decrypt(key, password, salt)
       _.merge(secure, {
