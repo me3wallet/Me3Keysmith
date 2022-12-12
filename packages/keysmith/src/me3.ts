@@ -12,12 +12,12 @@ import {aes, rsa, v2} from './safe'
 
 export default class Me3 {
   private readonly _gClient: Google
-  private _token?: string
-  private _userSecret?: any
   private readonly _client: AxiosInstance
 
-  private _myRsaPri?: string
-  private _serverRsaPub?: string
+  private _apiToken?: string
+  private _userSecret?: any
+  private _myPriRsa?: string
+  private _serverPubRsa?: string
 
   constructor(credential: ME3Config) {
     this._gClient = new Google(
@@ -38,7 +38,7 @@ export default class Me3 {
       config: AxiosRequestConfig
     ) {
       config.headers = _.chain(companyHeader)
-        .set('Light-token', _this._token)
+        .set('Light-token', _this._apiToken)
         .pickBy(_.identity)
         .merge(config.headers)
         .value()
@@ -49,11 +49,18 @@ export default class Me3 {
       let {data} = resp.data
       const isCipherBody = _.every(['data', 'secret'], _.partial(_.has, data))
       if (isCipherBody) {
-        data = _this.decryptData(data)
+        data = _this.decryptData(data, false)
       }
       resp.data = data
       return resp
     })
+  }
+
+  /**
+   * Please use this instance without `process.env.endpoint`
+   */
+  me3ApiClient(): AxiosInstance {
+    return this._client
   }
 
   getGAuthUrl() {
@@ -76,8 +83,8 @@ export default class Me3 {
       }
     )
 
-    this._token = _.get(data, 'token', '')
-    if (_.isEmpty(this._token)) {
+    this._apiToken = _.get(data, 'token', '')
+    if (_.isEmpty(this._apiToken)) {
       throw Error('Error! Operation failed.Please contact me3 team!')
     }
 
@@ -114,18 +121,37 @@ export default class Me3 {
     return wallets
   }
 
-  encryptData(data: any): CommData {
-    return v2.encrypt(JSON.stringify(data), {
-      rsaKey: this._serverRsaPub!,
+  encryptData(data: any, withAES = false): CommData {
+    const secure = {
+      rsaKey: this._serverPubRsa!,
       isPubKey: true
-    })
+    }
+    if (withAES === true) {
+      const {password, key, salt} = this._userSecret!
+      const decryptedKey = aes.decrypt(key, password, salt)
+      _.merge(secure, {
+        aesKey: decryptedKey,
+        aesSalt: salt
+      })
+    }
+    return v2.encrypt(JSON.stringify(data), secure)
   }
 
-  decryptData(data: CommData) {
-    const decrypted = v2.decrypt(data, {
-      rsaKey: this._myRsaPri!,
+  decryptData(data: CommData, withAES = false) {
+    const secure = {
+      rsaKey: this._myPriRsa!,
       isPubKey: false
-    })
+    }
+    if (withAES === true) {
+      const {password, key, salt} = this._userSecret!
+      const decryptedKey = aes.decrypt(key, password, salt)
+      _.merge(secure, {
+        aesKey: decryptedKey,
+        aesSalt: salt
+      })
+    }
+
+    const decrypted = v2.decrypt(data, secure)
     return JSON.parse(decrypted)
   }
 
@@ -250,7 +276,7 @@ export default class Me3 {
       }
     )
 
-    this._myRsaPri = privateKey
-    this._serverRsaPub = data
+    this._myPriRsa = privateKey
+    this._serverPubRsa = data
   }
 }
