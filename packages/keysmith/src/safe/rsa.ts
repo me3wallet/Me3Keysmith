@@ -6,26 +6,26 @@ import {
   privateDecrypt,
   privateEncrypt,
   publicDecrypt,
-  publicEncrypt
+  publicEncrypt,
 } from 'crypto'
-import {RsaKey} from '../config'
+import { RsaKey } from '../types'
 
 export async function genKeyPair(): Promise<RsaKey> {
-  const {publicKey, privateKey} = await generateKeyPairSync('rsa', {
+  const { publicKey, privateKey } = await generateKeyPairSync('rsa', {
     modulusLength: 1024,
     publicExponent: 0x10001,
     publicKeyEncoding: {
       format: 'der',
-      type: 'spki'
+      type: 'spki',
     },
     privateKeyEncoding: {
       format: 'der',
-      type: 'pkcs8'
-    }
+      type: 'pkcs8',
+    },
   })
   return {
     privateKey: privateKey.toString('base64'),
-    publicKey: publicKey.toString('base64')
+    publicKey: publicKey.toString('base64'),
   }
 }
 
@@ -50,7 +50,7 @@ function _b642RsaKey(b64Str: string, isPubKey = true): KeyObject {
     ? createPublicKey({
       key: buf,
       format: 'der',
-      type: 'spki'
+      type: 'spki',
     })
     : createPrivateKey({
       key: buf,

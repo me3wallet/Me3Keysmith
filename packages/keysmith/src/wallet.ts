@@ -5,9 +5,9 @@ import {
   mnemonicToMiniSecret,
   sr25519PairFromSeed,
 } from '@polkadot/util-crypto'
-import {u8aToHex} from '@polkadot/util'
-import {FilecoinSigner} from '@blitslabs/filecoin-js-signer'
-import {ethers} from 'ethers'
+import { u8aToHex } from '@polkadot/util'
+import { FilecoinSigner } from '@blitslabs/filecoin-js-signer'
+import { ethers } from 'ethers'
 
 export default async function createWallet(series: string, mnemonic: string) {
   switch (series) {
@@ -28,7 +28,7 @@ export default async function createWallet(series: string, mnemonic: string) {
         await cryptoWaitReady()
       }
       const mini = mnemonicToMiniSecret(mnemonic)
-      const {publicKey, secretKey} = sr25519PairFromSeed(mini)
+      const { publicKey, secretKey } = sr25519PairFromSeed(mini)
       return {
         walletAddress: encodeAddress(publicKey),
         secretRaw: u8aToHex(secretKey),

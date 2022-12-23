@@ -18,6 +18,14 @@
       "warn",
       "never"
     ],
+    "object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-this-alias": 0,
     "@typescript-eslint/no-non-null-assertion": 0
