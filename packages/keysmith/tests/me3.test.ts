@@ -1,5 +1,5 @@
 import Me3 from '../src'
-import {CONFIG, REDIRECTED} from './env.test'
+import { CONFIG, REDIRECTED } from './env.test'
 
 describe('Me3 class testing', () => {
   const me3 = new Me3(CONFIG)

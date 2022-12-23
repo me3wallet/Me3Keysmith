@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {createCipheriv, createDecipheriv, pbkdf2Sync} from 'crypto'
+import { createCipheriv, createDecipheriv, pbkdf2Sync } from 'crypto'
 
 const ENC_ALGO = 256
 const KEY_SIZE = ENC_ALGO / 8
@@ -13,7 +13,7 @@ export function encrypt(plain: string, password: string, salt: string): string {
   cipher.setAutoPadding(false)
   const encrypted = Buffer.concat([
     cipher.update(_paddingSpace(plain), 'utf8'),
-    cipher.final()
+    cipher.final(),
   ]).toString('hex')
   return Buffer.from(encrypted, 'utf8')
     .toString('base64')
@@ -28,7 +28,7 @@ export function decrypt(b64Str: string, password: string, salt: string): string 
   decipher.setAutoPadding(false)
   const decoded = Buffer.concat([
     decipher.update(utf8, 'hex'),
-    decipher.final()
+    decipher.final(),
   ]).toString('utf8')
   return _.trimEnd(decoded, ' ')
 }

@@ -1,8 +1,8 @@
-import {aes, v1, v2} from '../src/safe'
+import { aes, v1, v2 } from '../src/safe'
 import * as rsa from '../src/safe/rsa'
 import * as chacha from '../src/safe/chacha'
 
-import {ALICE, RAWKEY} from './env.test'
+import { ALICE, RAWKEY } from './env.test'
 
 describe('Safe testing', () => {
   describe('V1 Testing', () => {
@@ -82,7 +82,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'USDC',
         'name': 'USDC',
         'decimals': 6,
-        'logoURI': 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png'
+        'logoURI': 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png',
       },
       {
         'chainId': 42161,
@@ -91,7 +91,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'USDT',
         'name': 'USDT',
         'decimals': 6,
-        'logoURI': 'https://coin.top/production/logo/usdtlogo.png'
+        'logoURI': 'https://coin.top/production/logo/usdtlogo.png',
       },
       {
         'chainId': 42161,
@@ -100,7 +100,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'DAI',
         'name': 'DAI',
         'decimals': 18,
-        'logoURI': 'https://assets.coingecko.com/coins/images/9956/large/dai-multi-collateral-mcd.png'
+        'logoURI': 'https://assets.coingecko.com/coins/images/9956/large/dai-multi-collateral-mcd.png',
       },
       {
         'chainId': 42161,
@@ -109,7 +109,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'WETH',
         'name': 'Wrapped Ether',
         'decimals': 18,
-        'logoURI': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+        'logoURI': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
       },
       {
         'chainId': 42161,
@@ -118,7 +118,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'WBTC',
         'name': 'WBTC',
         'decimals': 8,
-        'logoURI': 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png'
+        'logoURI': 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
       },
       {
         'chainId': 42161,
@@ -127,7 +127,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'symbol': 'MIM',
         'name': 'Magic Internet Money',
         'decimals': 18,
-        'logoURI': 'https://s2.coinmarketcap.com/static/img/coins/64x64/162.png'
+        'logoURI': 'https://s2.coinmarketcap.com/static/img/coins/64x64/162.png',
       },
       {
         'chainId': 42161,
@@ -136,7 +136,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'MAI',
         'symbol': 'MAI',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/MAI.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/MAI.svg',
       },
       {
         'chainId': 42161,
@@ -145,7 +145,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Frax Share',
         'symbol': 'FXS',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/FXS.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/FXS.svg',
       },
       {
         'chainId': 42161,
@@ -154,7 +154,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Synapse',
         'symbol': 'SYN',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/SYN.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/SYN.svg',
       },
       {
         'chainId': 42161,
@@ -163,7 +163,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Cartesi',
         'symbol': 'CTSI',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/CTSI.png'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/CTSI.png',
       },
       {
         'chainId': 42161,
@@ -172,7 +172,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Multchain',
         'symbol': 'MULTI',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/MULTI.png'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/MULTI.png',
       },
       {
         'chainId': 42161,
@@ -181,7 +181,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Stargate Finance',
         'symbol': 'STG',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/STG.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/STG.svg',
       },
       {
         'chainId': 42161,
@@ -190,7 +190,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Beefy.Finance',
         'symbol': 'BIFI',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/BIFI.png'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/BIFI.png',
       },
       {
         'chainId': 42161,
@@ -199,7 +199,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Popcorn',
         'symbol': 'POP',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/POP.png'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/POP.png',
       },
       {
         'chainId': 42161,
@@ -208,7 +208,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Sperax USD',
         'symbol': 'USDS',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/USDS.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/USDS.svg',
       },
       {
         'chainId': 42161,
@@ -217,7 +217,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'O3 Swap',
         'symbol': 'O3',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/O3.png'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/O3.png',
       },
       {
         'chainId': 42161,
@@ -226,7 +226,7 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'Deri Protocol',
         'symbol': 'DERI',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/DERI.svg'
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/DERI.svg',
       },
       {
         'chainId': 42161,
@@ -235,12 +235,12 @@ const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
         'decimals': 18,
         'name': 'GMX',
         'symbol': 'GMX',
-        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/GMX.svg'
-      }
+        'logoURI': 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/GMX.svg',
+      },
     ],
     'version': {
       'major': 1,
       'minor': 0,
-      'patch': 1
-    }
+      'patch': 1,
+    },
   }

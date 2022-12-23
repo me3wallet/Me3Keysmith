@@ -1,16 +1,16 @@
 import _ from 'lodash'
-import {randomBytes} from 'crypto'
+import { randomBytes } from 'crypto'
 import * as aes from './aes'
 import * as rsa from './rsa'
 import * as chacha from './chacha'
-import {CommData, CommSecure} from '../config'
+import { CommData, CommSecret } from '../types'
 
-export function encrypt(plain: string, commSecure: CommSecure): CommData {
-  if (!_.isEmpty(commSecure.aesPwd) && !_.isEmpty(commSecure.aesSalt)) {
+export function encrypt(plain: string, commSecret: CommSecret): CommData {
+  if (!_.isEmpty(commSecret.aesPwd) && !_.isEmpty(commSecret.aesSalt)) {
     plain = aes.encrypt(
       plain,
-      commSecure.aesPwd!,
-      commSecure.aesSalt!
+      commSecret.aesPwd!,
+      commSecret.aesSalt!
     )
   }
 
@@ -20,18 +20,18 @@ export function encrypt(plain: string, commSecure: CommSecure): CommData {
     Buffer.from(plain, 'utf8')
   ).toString('base64')
   const secret = rsa.encrypt(
-    commSecure.rsaKey,
+    commSecret.rsaKey,
     chachaKey,
-    commSecure.isPubKey
+    commSecret.isPubKey
   ).toString('base64')
-  return {data, secret}
+  return { data, secret }
 }
 
-export function decrypt(data: CommData, commSecure: CommSecure): string {
+export function decrypt(data: CommData, commSecret: CommSecret): string {
   const chachaKey = rsa.decrypt(
-    commSecure.rsaKey,
+    commSecret.rsaKey,
     Buffer.from(data.secret, 'base64'),
-    commSecure.isPubKey
+    commSecret.isPubKey
   )
   const decryped = chacha.decrypt(
     chachaKey,
@@ -39,8 +39,8 @@ export function decrypt(data: CommData, commSecure: CommSecure): string {
   )
 
   const ret = decryped.toString('utf8')
-  if (_.isEmpty(commSecure.aesPwd) || _.isEmpty(commSecure.aesSalt)) {
+  if (_.isEmpty(commSecret.aesPwd) || _.isEmpty(commSecret.aesSalt)) {
     return ret
   }
-  return aes.decrypt(ret, commSecure.aesPwd!, commSecure.aesSalt!)
+  return aes.decrypt(ret, commSecret.aesPwd!, commSecret.aesSalt!)
 }
