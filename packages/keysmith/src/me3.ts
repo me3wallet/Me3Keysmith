@@ -2,7 +2,7 @@ import path from 'path'
 import _ from 'lodash'
 import QRLogo from 'qr-with-logo'
 import RandomString from 'randomstring'
-import bip39 from 'bip39'
+import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { CommData, DriveName, ME3Config } from './types'
