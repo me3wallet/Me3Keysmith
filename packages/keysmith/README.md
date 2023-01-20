@@ -1,8 +1,10 @@
 # Me3 Keysmith
 
-⚠️ Recommend node16, if node version >16, then please use `NODE_OPTIONS=--openssl-legacy-provider`
+Keysmith enables you to create Me3 wallets invisibly. Simply integrate this module and use the me3.getWallets() method to obtain the Me3 Wallet for a specific gmail. The user's UX is the same as that of a Google SSO.
 
-⚠️ This module enables one to create Me3 wallets and recovery files. Implementation of custodial/non-custodial governance is at the users level, and Me3 bears no liability from the governance implemented by the user.
+⚠️ This module simply enables one to create Me3 wallets and recovery files. Implementation of custodial/non-custodial governance is at the users level, and Me3 bears no liability from the governance implemented by the user.
+
+⚠️ Recommend node16, if node version >16, then please use `NODE_OPTIONS=--openssl-legacy-provider`
 
 ## How to use
 
