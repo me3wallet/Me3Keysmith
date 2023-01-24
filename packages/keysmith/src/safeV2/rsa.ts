@@ -29,12 +29,12 @@ export function genKeyPair(): RsaKey {
 /**
  * Encrypt utf8plainBytes using pubKey
  * @param b64Key RSA pub key in Der format
- * @param utf8plainBytes Plain text to encrypt
+ * @param plainBytes Plain text to encrypt
  * @return Encrypted ForgeByte string
  */
-export function encrypt(b64Key: string, utf8plainBytes: string): string {
+export function encrypt(b64Key: string, plainBytes: string): string {
   const keyObj = _b64DerStr2Key(b64Key, false)
-  return keyObj.encrypt(utf8plainBytes, 'RSA-OAEP', {
+  return keyObj.encrypt(plainBytes, 'RSA-OAEP', {
     md: md.sha1.create(),
     mgf1: {
       md: md.sha1.create(),

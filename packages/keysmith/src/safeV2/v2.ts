@@ -17,17 +17,17 @@ export function encrypt(plain: string, commSecret: CommSecret): CommData {
   const { keyBytes, b64DataBytes } = chacha.encrypt(
     util.encodeUtf8(plain),
   )
-  const secret = rsa.encrypt(
-    commSecret.rsaKey,
-    keyBytes,
-  )
-  return { data: b64DataBytes, secret }
+  const secretBytes = rsa.encrypt(commSecret.rsaKey, keyBytes)
+  return {
+    data: b64DataBytes,
+    secret: util.encode64(secretBytes),
+  }
 }
 
 export function decrypt(data: CommData, commSecret: CommSecret): string {
   const chachaKey = rsa.decrypt(
     commSecret.rsaKey,
-    data.secret,
+    util.decode64(data.secret),
   )
   const ret = chacha.decrypt(chachaKey, data.data)
   if (_.isEmpty(commSecret.aesPwd) || _.isEmpty(commSecret.aesSalt)) {

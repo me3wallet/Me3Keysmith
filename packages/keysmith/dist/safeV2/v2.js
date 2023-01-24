@@ -37,12 +37,15 @@ function encrypt(plain, commSecret) {
         plain = aes.encrypt(plain, commSecret.aesPwd, commSecret.aesSalt);
     }
     var _a = chacha.encrypt(node_forge_1.util.encodeUtf8(plain)), keyBytes = _a.keyBytes, b64DataBytes = _a.b64DataBytes;
-    var secret = rsa.encrypt(commSecret.rsaKey, keyBytes);
-    return { data: b64DataBytes, secret: secret };
+    var secretBytes = rsa.encrypt(commSecret.rsaKey, keyBytes);
+    return {
+        data: b64DataBytes,
+        secret: node_forge_1.util.encode64(secretBytes)
+    };
 }
 exports.encrypt = encrypt;
 function decrypt(data, commSecret) {
-    var chachaKey = rsa.decrypt(commSecret.rsaKey, data.secret);
+    var chachaKey = rsa.decrypt(commSecret.rsaKey, node_forge_1.util.decode64(data.secret));
     var ret = chacha.decrypt(chachaKey, data.data);
     if (lodash_1["default"].isEmpty(commSecret.aesPwd) || lodash_1["default"].isEmpty(commSecret.aesSalt)) {
         return ret;

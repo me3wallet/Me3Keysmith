@@ -26,9 +26,9 @@ function genKeyPair() {
     };
 }
 exports.genKeyPair = genKeyPair;
-function encrypt(b64Key, utf8plainBytes) {
+function encrypt(b64Key, plainBytes) {
     var keyObj = _b64DerStr2Key(b64Key, false);
-    return keyObj.encrypt(utf8plainBytes, 'RSA-OAEP', {
+    return keyObj.encrypt(plainBytes, 'RSA-OAEP', {
         md: node_forge_1.md.sha1.create(),
         mgf1: {
             md: node_forge_1.md.sha1.create()

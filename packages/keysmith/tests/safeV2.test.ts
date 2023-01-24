@@ -11,7 +11,7 @@ describe('Safe testing', () => {
       const encrypted = v1.encrypt(
         RAWKEY,
         ALICE.password,
-        ALICE.salt
+        ALICE.salt,
       )
       expect(encrypted).toEqual(ALICE.key)
     })
@@ -19,7 +19,7 @@ describe('Safe testing', () => {
       const decrypted = v1.decrypt(
         ALICE.key,
         ALICE.password,
-        ALICE.salt
+        ALICE.salt,
       )
       expect(decrypted).toEqual(RAWKEY)
     })
@@ -62,11 +62,27 @@ describe('Safe testing', () => {
       })
       expect(decrypted).toEqual(plain)
     })
+    it('Decrypt server response', async function () {
+      const decrypted = v2.decrypt(SERVER_RESP, {
+        rsaKey: MY_RSA.privateKey,
+        isPubKey: false,
+      })
+      expect(decrypted).toBeTruthy()
+    })
   })
 })
 
 const AES_PWD = 'b7f925cf-eb3d-4587-b81b-a17b212cd61d',
   AES_SALT = '3990611c-f057-4c25-bde6-4fe932161a5d',
+  MY_RSA = {
+    'privateKey': 'MIICXQIBAAKBgQDgK5knaLuED4wfxvDD46LI2QJ9tRd7t0ChrrYu68FuSu8KpBLn49CH8Lkbr+p4L9auVrjibRoELPsMSfaVsmJyRi+MXA0A8NdD65PkUywIuImjCsVe/nSWVRJBCIX3YbMO1DP/V0DI77ebqRKQazxT3lQB5TGoh18jGRl5wEdGOwIDAQABAoGBANRN9jqwogcsglUGILglOuJlREqx24+7umZmBPzjIsrGBSZaxd0AkVptzaI/NRymkfeDAo7PLTiPMSQuWG7mBvzVWlQODu9OcGVY7DZJkZOtQEVA6JNBEONcz/fZs11VJpJAo0+KERyEf+EaUdC40B+cXHlRlA+MqgmClgkUGbXBAkEA8iy9PHDoFDbuBLUGnoIjTgvE3ycQlUPtPzNxU4AAjJ5RP2RJTJtlcEUbZJM0RznSeDd2WuWCxBqJ5POvRFST2QJBAOz3u6uy4BHmUjNqPqQM+mw9nTqwpsSBkKlMr37+101vQFCikl39zrZAidPNy6gStGzgFt/I2fv7TiKUPyZDIjMCQDHx4CUy8+oXWgdGflL6a+WQr82F9PmTxL4gEeMypupZTFBSkntmIQmCdx/K7CE0X5/DcHlWlB11i7LYPvFMsCECQQCkKBnCH/BJdhyLsZYjXzo7sZMyDR36Eyd7oLwSZcgQxHjxYy2yHxkL+DmCmJX0oMCMi9BMxn77qGPAYKI+h1MxAkAYE3pMmfQm2x8KGKxFs+CwNijJPKUeIqziC6KYDq6Xkexl5TXDPiujtqAZhhdDx2fD6tPlzVo+YSEggUZ9wybS',
+    'publicKey': 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgK5knaLuED4wfxvDD46LI2QJ9tRd7t0ChrrYu68FuSu8KpBLn49CH8Lkbr+p4L9auVrjibRoELPsMSfaVsmJyRi+MXA0A8NdD65PkUywIuImjCsVe/nSWVRJBCIX3YbMO1DP/V0DI77ebqRKQazxT3lQB5TGoh18jGRl5wEdGOwIDAQAB',
+  },
+  // SERVER_RSA_PUB = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzmrAWm9sGnZuFJIzPHa/vzTSDKJF9S0fA+JtMm2quvZQNt6zQNcbLf8udFfCZTay52ZuO8Onh3i0bYys6FpvhsplngLujl0LTyUkiTy/+yOaPUS6vnTATc5+2NflyKRCr/mtIErgt6+threI3tVoIBRdmzxq46+zNJUw91z0FlQIDAQAB',
+  SERVER_RESP = {
+    'secret': 'nDB4FsOBqE8DLRVWNojQyTVxP1zS1KpQMiipyachtm6SRzu5hUmGmQazJlmTDgRsKC8+yvLaJRDqDTjYf2AoOEIyAkMuosTR7GR1gCK21KANDpG1GqVW7OIIn/A8+ayDaAThFqDVsX6t+q9kY+bjMgwaNdyyq5OP7d/LEXB2TWg=',
+    'data': 'SVH0GscEa4JHcDp0xt4J0VGGpRxrskx5IBSTlhQdhiu9vyiwKB+U027PAniUtmO8EBMVGbGj7m/sgn7H8IMSkoOvqPjH+RrO',
+  },
   BIG_JSON = {
     'name': 'KyberSwap Token List Arbitrum',
     'keywords': ['dmmexchange', 'kyberswap'],
