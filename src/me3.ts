@@ -8,6 +8,7 @@ import createWallet from "./wallet";
 import Google from "./google";
 import safe from "./safe";
 import path from "path";
+import { signTransaction } from "./transaction"
 
 const QRLogo = require("qr-with-logo");
 const RandomString = require("randomstring");
@@ -228,5 +229,22 @@ export default class Me3 {
 
     // True for new user
     return true;
+  }
+
+  /**
+   * Signs a transaction
+   * Only ETH is support at this time
+   * @param series: currency of the transaction - btc, eth, fil, bch, dot, ltc
+   * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
+   */
+  async signTransaction(series, transactionRequest) {
+    const { password, key, salt } = this._secret!;
+    const decryptedKey = safe.decrypt(key, password, salt);
+
+    return await signTransaction({
+      series,
+      privateKey: decryptedKey,
+      transactionRequest
+    });
   }
 }
