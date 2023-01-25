@@ -33,7 +33,7 @@ app.get('/', async function (req, res) {
     _.get(req.query, 'session_state') as string,
   )
   if (success) {
-    res.redirect('https://www.avarta.io/')
+    res.redirect('https://www.me3.io/')
     return
   }
   res.json({ error: 'Can\'t recover the wallets' })

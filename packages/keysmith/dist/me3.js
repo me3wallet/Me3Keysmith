@@ -103,7 +103,7 @@ var Me3 = (function () {
         }, function (err) {
             var status = err.response ? err.response.status : null;
             if (status === 401) {
-                return _this._refreshToken(err.config.baseURL).then(function (_) {
+                return _this._refreshToken().then(function (_) {
                     err.config.headers['Authorization'] = "Bearer ".concat(_this._apiToken.kc_access);
                     return _this._client.request(err.config);
                 });
@@ -342,7 +342,7 @@ var Me3 = (function () {
     };
     Me3.prototype._loadBackupFile = function (krFileId) {
         return __awaiter(this, void 0, void 0, function () {
-            var updateGFileId, _a, uid, password, salt, _b, randStr, key, secret, jsonStr, qrCode, _c, jsonId;
+            var updateGFileId, _a, _b, uid, password, salt, randStr, key, secret, jsonStr, qrCode, _c, jsonId;
             var _this_1 = this;
             return __generator(this, function (_d) {
                 switch (_d.label) {
@@ -354,15 +354,17 @@ var Me3 = (function () {
                                     }).then(function (resp) { return lodash_1["default"].get(resp, 'data.fileId'); })];
                             });
                         }); };
-                        _a = this._apiToken, uid = _a.uid, password = _a.password, salt = _a.salt;
-                        if (!(lodash_1["default"].isNil(uid) || lodash_1["default"].isNil(password) || lodash_1["default"].isNil(salt))) return [3, 2];
                         if (!!lodash_1["default"].isEmpty(krFileId)) return [3, 2];
-                        _b = this;
+                        _a = this;
                         return [4, this._gClient.loadFile(krFileId)];
                     case 1:
-                        _b._userSecret = _d.sent();
+                        _a._userSecret = _d.sent();
                         return [2, false];
                     case 2:
+                        _b = this._apiToken, uid = _b.uid, password = _b.password, salt = _b.salt;
+                        if (lodash_1["default"].isNil(uid) || lodash_1["default"].isNil(password) || lodash_1["default"].isNil(salt)) {
+                            throw Error('No KR info!');
+                        }
                         randStr = randomstring_1["default"].generate({
                             charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
                             length: 40
@@ -388,7 +390,7 @@ var Me3 = (function () {
             });
         });
     };
-    Me3.prototype._refreshToken = function (baseURL) {
+    Me3.prototype._refreshToken = function () {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
             var data;
@@ -398,7 +400,7 @@ var Me3 = (function () {
                         if (lodash_1["default"].isEmpty((_a = this._apiToken) === null || _a === void 0 ? void 0 : _a.kc_refresh)) {
                             return [2, false];
                         }
-                        return [4, axios_1["default"].post("".concat(baseURL, "/kc/auth/refresh"), {
+                        return [4, axios_1["default"].post("".concat(this._client.defaults.baseURL, "/kc/auth/refresh"), {
                                 refresh: (_b = this._apiToken) === null || _b === void 0 ? void 0 : _b.kc_refresh
                             })];
                     case 1:

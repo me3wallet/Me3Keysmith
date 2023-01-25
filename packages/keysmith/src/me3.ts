@@ -53,7 +53,7 @@ export default class Me3 {
       const status = err.response ? err.response.status : null
 
       if (status === 401) {
-        return _this._refreshToken(err.config.baseURL).then(_ => {
+        return _this._refreshToken().then(_ => {
           err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
           return _this._client.request(err.config)
         })
@@ -241,12 +241,13 @@ export default class Me3 {
         params: { fileId },
       }).then((resp) => _.get(resp, 'data.fileId'))
 
+    if (!_.isEmpty(krFileId)) {
+      this._userSecret = await this._gClient.loadFile(krFileId)
+      return false // False for already exist user
+    }
     const { uid, password, salt } = this._apiToken
     if (_.isNil(uid) || _.isNil(password) || _.isNil(salt)) {
-      if (!_.isEmpty(krFileId)) {
-        this._userSecret = await this._gClient.loadFile(krFileId)
-        return false // False for already exist user
-      }
+      throw Error('No KR info!')
     }
     const randStr = RandomString.generate({
       charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
@@ -276,11 +277,11 @@ export default class Me3 {
     return true
   }
 
-  private async _refreshToken(baseURL: string): Promise<boolean> {
+  private async _refreshToken(): Promise<boolean> {
     if (_.isEmpty(this._apiToken?.kc_refresh)) {
       return false
     }
-    const { data } = await axios.post(`${baseURL}/kc/auth/refresh`, {
+    const { data } = await axios.post(`${this._client.defaults.baseURL}/kc/auth/refresh`, {
       refresh: this._apiToken?.kc_refresh,
     })
     this._apiToken = data.data
