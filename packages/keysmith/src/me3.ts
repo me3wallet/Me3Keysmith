@@ -5,26 +5,20 @@ import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { CommData, DriveName, ME3Config } from './types'
+import { CommData, DriveName, ME3Config, Tokens } from './types'
 import createWallet from './wallet'
 import Google from './google'
-import { aes, rsa, v2 } from './safe'
+import { aes, rsa, v2 } from './safeV2'
 
 export default class Me3 {
-  private readonly _gClient: Google
+  private _gClient: Google
   private readonly _client: AxiosInstance
 
-  private _apiToken?: string
+  private _apiToken?: Tokens
   private _userSecret?: any
   private _myPriRsa?: string
-  private _serverPubRsa?: string
 
   constructor(credential: ME3Config) {
-    this._gClient = new Google(
-      credential.client_id,
-      credential.client_secret,
-      credential.redirect_uris
-    )
     this._client = axios.create({
       baseURL: credential.endpoint,
     })
@@ -35,14 +29,15 @@ export default class Me3 {
     }
     const _this: Me3 = this
     this._client.interceptors.request.use(function (
-      config: AxiosRequestConfig
+      config: AxiosRequestConfig,
     ) {
-      config.headers = _.chain(companyHeader)
-        .set('Light-token', _this._apiToken)
+      let chain = _.chain(companyHeader)
         .pickBy(_.identity)
-        .merge(config.headers)
-        .value()
 
+      if (!_.isEmpty(_this._apiToken?.kc_access)) {
+        chain = chain.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
+      }
+      config.headers = chain.merge(config.headers).value()
       return config
     })
     this._client.interceptors.response.use(function (resp: AxiosResponse) {
@@ -53,6 +48,18 @@ export default class Me3 {
       }
       resp.data = data
       return resp
+    },
+    function (err) {
+      const status = err.response ? err.response.status : null
+
+      if (status === 401) {
+        return _this._refreshToken(err.config.baseURL).then(_ => {
+          err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
+          return _this._client.request(err.config)
+        })
+      }
+
+      return Promise.reject(err)
     })
   }
 
@@ -63,32 +70,37 @@ export default class Me3 {
     return this._client
   }
 
-  getGAuthUrl() {
-    return this._gClient.generateAuthUrl()
+  async getAuthLink(redirectURL: string): Promise<string> {
+    const { privateKey, publicKey } = rsa.genKeyPair()
+    this._myPriRsa = privateKey
+    const { data } = await this._client.get('/kc/auth/link', {
+      params: {
+        redirectURL,
+        pubKey: publicKey,
+      },
+    })
+    return data
   }
 
-  async getGToken(redirectUrl: string): Promise<boolean> {
-    return await this._gClient.getTokens(redirectUrl)
+  async getAuthToken(code: string, state: string, sessionState: string): Promise<boolean> {
+    const { data } = await this._client.get('/kc/auth/code', {
+      params: {
+        code, state,
+        session_state: sessionState,
+      },
+    })
+    this._apiToken = data
+    this._gClient = new Google(this._apiToken.google_access)
+    return true
   }
 
   async getWallets() {
-    const email = await this._gClient.getUserEmail()
-    await this._exchangeKey(email!)
-
-    const { data } = await this._client.post(
-      '/api/light/register',
-      null,
-      {
-        params: { faceId: email },
-      }
-    )
-
-    this._apiToken = _.get(data, 'token', '')
     if (_.isEmpty(this._apiToken)) {
       throw Error('Error! Operation failed.Please contact me3 team!')
     }
 
-    const isNewUser = await this._loadBackupFile(data)
+    const { email, krFileId } = await this._getUserProfile()
+    const isNewUser = await this._loadBackupFile(krFileId)
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`)
       return await this._loadWallets()
@@ -123,7 +135,7 @@ export default class Me3 {
 
   encryptData(data: any, withAES = false): CommData {
     const secure = {
-      rsaKey: this._serverPubRsa!,
+      rsaKey: this._apiToken.rsaPubKey,
       isPubKey: true,
     }
     if (withAES === true && !_.isEmpty(this._userSecret)) {
@@ -164,7 +176,7 @@ export default class Me3 {
         { errorCorrectionLevel: 'M' },
         'Base64',
         'qr.png',
-        (b64: never) => res(b64)
+        (b64: never) => res(b64),
       ).catch(rej)
     })
   }
@@ -182,7 +194,7 @@ export default class Me3 {
         result[_.toLower(acc.series)] = list
         return result
       },
-      {}
+      {},
     )
 
     // Create wallets
@@ -214,7 +226,7 @@ export default class Me3 {
         } catch (e) {
           console.log(
             `Wallet - [${w.chainName}::${w.walletName}::${w.walletAddress} decryption failed`,
-            _.get(e, 'message')
+            _.get(e, 'message'),
           )
         }
         return undefined
@@ -223,19 +235,17 @@ export default class Me3 {
       .value()
   }
 
-  private async _loadBackupFile(userDetail?: any) {
-    const fetchOrUpdateGFileId = async (fileId?: string) =>
+  private async _loadBackupFile(krFileId?: string) {
+    const updateGFileId = async (fileId?: string) =>
       this._client.post('/api/light/userfileId', null, {
         params: { fileId },
       }).then((resp) => _.get(resp, 'data.fileId'))
 
-    const { uid, password, salt } = userDetail
+    const { uid, password, salt } = this._apiToken
     if (_.isNil(uid) || _.isNil(password) || _.isNil(salt)) {
-      const fileId = await fetchOrUpdateGFileId('')
-      if (!_.isEmpty(fileId)) {
-        this._userSecret = await this._gClient.loadFile(fileId)
-        // False for already exist user
-        return false
+      if (!_.isEmpty(krFileId)) {
+        this._userSecret = await this._gClient.loadFile(krFileId)
+        return false // False for already exist user
       }
     }
     const randStr = RandomString.generate({
@@ -248,35 +258,37 @@ export default class Me3 {
     const qrCode = await this._generateQR(jsonStr)
 
     const [, jsonId] = await Promise.all([
-      this._gClient.saveFiles(
+      this._gClient.saveFile(
         this._gClient.b642Readable(qrCode),
         DriveName.qr,
-        'image/png'
+        'image/png',
       ),
-      this._gClient.saveFiles(
+      this._gClient.saveFile(
         this._gClient.str2Readable(jsonStr),
         DriveName.json,
-        'application/json'
+        'application/json',
       ),
     ])
-    await fetchOrUpdateGFileId(jsonId!)
+    await updateGFileId(jsonId!)
     this._userSecret = secret
 
     // True for new user
     return true
   }
 
-  private async _exchangeKey(email: string) {
-    const { privateKey, publicKey } = await rsa.genKeyPair()
-    const { data } = await this._client.post(
-      '/api/light/exchange/key',
-      {
-        email,
-        publicKey,
-      }
-    )
+  private async _refreshToken(baseURL: string): Promise<boolean> {
+    if (_.isEmpty(this._apiToken?.kc_refresh)) {
+      return false
+    }
+    const { data } = await axios.post(`${baseURL}/kc/auth/refresh`, {
+      refresh: this._apiToken?.kc_refresh,
+    })
+    this._apiToken = data.data
+    return true
+  }
 
-    this._myPriRsa = privateKey
-    this._serverPubRsa = data
+  private async _getUserProfile() {
+    const { data } = await this._client.get('/kc/api/userInfo')
+    return data
   }
 }

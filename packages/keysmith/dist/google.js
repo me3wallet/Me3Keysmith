@@ -35,74 +35,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 exports.__esModule = true;
-var lodash_1 = __importDefault(require("lodash"));
-var url_1 = __importDefault(require("url"));
 var stream_1 = require("stream");
 var googleapis_1 = require("googleapis");
-var SCOPES = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file',
-];
 var Google = (function () {
-    function Google(clientId, clientSecret, redirectUrls) {
-        this._redirectUrl = redirectUrls[0];
-        this._auth = new googleapis_1.google.auth.OAuth2(clientId, clientSecret, this._redirectUrl);
-        googleapis_1.google.options({ auth: this._auth });
-        this._drive = googleapis_1.google.drive({ version: 'v3' });
+    function Google(accessToken) {
+        var auth = new googleapis_1.google.auth.OAuth2();
+        auth.setCredentials({
+            access_token: accessToken
+        });
+        this._drive = googleapis_1.google.drive({ auth: auth, version: 'v3' });
     }
-    Google.prototype.generateAuthUrl = function () {
-        return this._auth.generateAuthUrl({
-            access_type: 'offline',
-            scope: SCOPES
-        });
-    };
-    Google.prototype.getTokens = function (redirectUrl) {
-        return __awaiter(this, void 0, void 0, function () {
-            var code, query, tokens;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        code = redirectUrl;
-                        if (lodash_1["default"].startsWith(redirectUrl, 'https://') ||
-                            lodash_1["default"].startsWith(redirectUrl, 'http://')) {
-                            if (!lodash_1["default"].startsWith(redirectUrl, this._redirectUrl))
-                                return [2, false];
-                            query = url_1["default"].parse(redirectUrl, true).query;
-                            code = lodash_1["default"].get(query, 'code');
-                        }
-                        if (lodash_1["default"].isEmpty(code))
-                            return [2, false];
-                        return [4, this._auth.getToken(code)];
-                    case 1:
-                        tokens = (_a.sent()).tokens;
-                        console.log(tokens);
-                        this._auth.setCredentials(tokens);
-                        return [2, true];
-                }
-            });
-        });
-    };
-    Google.prototype.getUserEmail = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var googleAuth, data;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        googleAuth = googleapis_1.google.oauth2({ version: 'v2' });
-                        return [4, googleAuth.userinfo.get()];
-                    case 1:
-                        data = (_a.sent()).data;
-                        return [2, data.email];
-                }
-            });
-        });
-    };
-    Google.prototype.saveFiles = function (body, fileName, mimeType) {
+    Google.prototype.saveFile = function (body, fileName, mimeType) {
         return __awaiter(this, void 0, void 0, function () {
             var file;
             return __generator(this, function (_a) {

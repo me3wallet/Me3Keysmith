@@ -1,16 +1,15 @@
 import { AxiosInstance } from 'axios';
 import { CommData, ME3Config } from './types';
 export default class Me3 {
-    private readonly _gClient;
+    private _gClient;
     private readonly _client;
     private _apiToken?;
     private _userSecret?;
     private _myPriRsa?;
-    private _serverPubRsa?;
     constructor(credential: ME3Config);
     me3ApiClient(): AxiosInstance;
-    getGAuthUrl(): any;
-    getGToken(redirectUrl: string): Promise<boolean>;
+    getAuthLink(redirectURL: string): Promise<string>;
+    getAuthToken(code: string, state: string, sessionState: string): Promise<boolean>;
     getWallets(): Promise<any[]>;
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
@@ -18,5 +17,6 @@ export default class Me3 {
     private _createWallets;
     private _loadWallets;
     private _loadBackupFile;
-    private _exchangeKey;
+    private _refreshToken;
+    private _getUserProfile;
 }

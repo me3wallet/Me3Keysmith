@@ -16,6 +16,22 @@ interface RsaKey {
   publicKey: string;
 }
 
+interface Tokens {
+  kc_access: string;
+  kc_refresh: string;
+
+  // Google access token
+  google_access: string;
+
+  // Server side rsa pub key
+  rsaPubKey: string;
+
+  // Will be not null only for new users
+  uid?: string;
+  password?: string;
+  salt?: string;
+}
+
 interface CommSecret {
   aesPwd?: string;
   aesSalt?: string;
@@ -28,4 +44,4 @@ interface CommData {
   data: string;
 }
 
-export { DriveName, ME3Config, RsaKey, CommSecret, CommData }
+export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData }
