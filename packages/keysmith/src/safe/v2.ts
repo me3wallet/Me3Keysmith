@@ -44,3 +44,17 @@ export function decrypt(data: CommData, commSecret: CommSecret): string {
   }
   return aes.decrypt(ret, commSecret.aesPwd!, commSecret.aesSalt!)
 }
+
+export function getWalletCiphers(krData) {
+  if (_.isEmpty(krData)) {
+    throw Error('Wrong KR info!')
+  }
+
+  const { key, salt, password } = krData
+  const decryptedKey = aes.decrypt(key, password, salt)
+
+  return [
+    plainPK => aes.encrypt(plainPK, decryptedKey, salt),
+    encryptedPK => aes.decrypt(encryptedPK, decryptedKey, salt),
+  ]
+}
