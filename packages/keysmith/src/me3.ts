@@ -10,7 +10,6 @@ import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safe'
 import { signTransaction } from './transaction'
-import { ethers } from 'ethers'
 
 export default class Me3 {
   private readonly _gClient: Google
@@ -25,7 +24,7 @@ export default class Me3 {
     this._gClient = new Google(
       credential.client_id,
       credential.client_secret,
-      credential.redirect_uris
+      credential.redirect_uris,
     )
     this._client = axios.create({
       baseURL: credential.endpoint,
@@ -37,7 +36,7 @@ export default class Me3 {
     }
     const _this: Me3 = this
     this._client.interceptors.request.use(function (
-      config: AxiosRequestConfig
+      config: AxiosRequestConfig,
     ) {
       config.headers = _.chain(companyHeader)
         .set('Light-token', _this._apiToken)
@@ -82,7 +81,7 @@ export default class Me3 {
       null,
       {
         params: { faceId: email },
-      }
+      },
     )
 
     this._apiToken = _.get(data, 'token', '')
@@ -97,21 +96,22 @@ export default class Me3 {
     }
 
     console.log(`New User, Create wallets for ${email}!`)
-    const wallets = await this._createWallets()
-    const { key, salt, password } = this._userSecret!
-    const decryptedKey = aes.decrypt(key, password, salt)
-
-    for (const w of wallets) {
-      const encrypted = this.encryptData({
+    const wallets = await this._createWallets().then(
+      wallets => _.map(wallets, w => ({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
-        secret: aes.encrypt(w.secretRaw, decryptedKey, salt),
-        needFocus: true,
-      })
-
+        // TODO: We will provide encrypted private key, as partner wants tx sign on our module
+        secret: cipher(w.secretRaw),
+      })),
+    )
+    const [cipher] = v2.getWalletCiphers(this._userSecret)
+    for (const w of wallets) {
       await Promise.all([
-        this._client.post('/api/light/addWallet', encrypted),
+        this._client.post(
+          '/api/light/addWallet',
+          this.encryptData({ ...w, needFocus: true }),
+        ),
         this._client.post('/api/mainChain/ping', null, {
           params: {
             chainName: w.chainName,
@@ -157,20 +157,20 @@ export default class Me3 {
     return JSON.parse(decrypted)
   }
 
+
   /**
    * Signs a transaction
-   * Only eth series is supported at this time
+   * Only ETH is support at this time
    * @param series: currency of the transaction to be executed - btc, eth, fil, bch, dot, ltc
-   * @param walletData: details of the acting wallet {@link WalletData}
+   * @param walletSecret: secret for the wallet executing the transaction
    * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
-   * @return string signedTransaction
    */
-  async signTransaction(series, walletData, transactionRequest) {
-    const privateKey = this._getWalletPrivateKey(walletData)
+  async signTransaction(series, walletSecret, transactionRequest) {
+    const [, decipher] = v2.getWalletCiphers(this._userSecret)
 
     return await signTransaction({
       series,
-      privateKey,
+      privateKey: decipher(walletSecret),
       transactionRequest,
     })
   }
@@ -184,7 +184,7 @@ export default class Me3 {
         { errorCorrectionLevel: 'M' },
         'Base64',
         'qr.png',
-        (b64: never) => res(b64)
+        (b64: never) => res(b64),
       ).catch(rej)
     })
   }
@@ -202,7 +202,7 @@ export default class Me3 {
         result[_.toLower(acc.series)] = list
         return result
       },
-      {}
+      {},
     )
 
     // Create wallets
@@ -218,29 +218,9 @@ export default class Me3 {
   }
 
   private async _loadWallets() {
-    const { password, key, salt } = this._userSecret!
-    const decryptedKey = aes.decrypt(key, password, salt)
-
     const { data } = await this._client.get('/api/light/secretList')
-    return _.chain(data)
-      .map((w) => {
-        try {
-          return {
-            chainName: w.chainName,
-            walletName: w.walletName,
-            walletAddress: w.walletAddress,
-            secret: aes.decrypt(w.secret, decryptedKey, salt),
-          }
-        } catch (e) {
-          console.log(
-            `Wallet - [${w.chainName}::${w.walletName}::${w.walletAddress} decryption failed`,
-            _.get(e, 'message')
-          )
-        }
-        return undefined
-      })
-      .compact()
-      .value()
+    // TODO: No need to be decrypted as we are going to sign tx on our end
+    return data
   }
 
   private async _loadBackupFile(userDetail?: any) {
@@ -271,12 +251,12 @@ export default class Me3 {
       this._gClient.saveFiles(
         this._gClient.b642Readable(qrCode),
         DriveName.qr,
-        'image/png'
+        'image/png',
       ),
       this._gClient.saveFiles(
         this._gClient.str2Readable(jsonStr),
         DriveName.json,
-        'application/json'
+        'application/json',
       ),
     ])
     await fetchOrUpdateGFileId(jsonId!)
@@ -293,24 +273,10 @@ export default class Me3 {
       {
         email,
         publicKey,
-      }
+      },
     )
 
     this._myPriRsa = privateKey
     this._serverPubRsa = data
-  }
-
-  /**
-   * @param walletData: details of the acting wallet {@link WalletData}
-   * @private
-   * @return privateKey string
-   */
-  private _getWalletPrivateKey(walletData) {
-    if (!walletData.secret) {
-      throw new Error('walletData corrupted, please use me3.getWallet() to fetch user\'s latest wallets')
-    }
-
-    const wallet = new ethers.Wallet(walletData.secret)
-    return wallet.privateKey
   }
 }
