@@ -108,15 +108,15 @@ export default class Me3 {
 
     console.log(`New User, Create wallets for ${email}!`)
     const wallets = await this._createWallets()
-    const { key, salt, password } = this._userSecret!
-    const decryptedKey = aes.decrypt(key, password, salt)
+    const [encoder] = v2.getWalletCiphers(this._userSecret)
+
 
     for (const w of wallets) {
       const encrypted = this.encryptData({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
-        secret: aes.encrypt(w.secretRaw, decryptedKey, salt),
+        secret: encoder(w.secretRaw),
         needFocus: true,
       })
 
@@ -210,8 +210,7 @@ export default class Me3 {
   }
 
   private async _loadWallets() {
-    const { password, key, salt } = this._userSecret!
-    const decryptedKey = aes.decrypt(key, password, salt)
+    const [, walletDecipher] = v2.getWalletCiphers(this._userSecret)
 
     const { data } = await this._client.get('/api/light/secretList')
     return _.chain(data)
@@ -221,7 +220,7 @@ export default class Me3 {
             chainName: w.chainName,
             walletName: w.walletName,
             walletAddress: w.walletAddress,
-            secret: aes.decrypt(w.secret, decryptedKey, salt),
+            secret: walletDecipher(w.secret),
           }
         } catch (e) {
           console.log(
