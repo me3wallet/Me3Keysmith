@@ -96,6 +96,7 @@ export default class Me3 {
     }
 
     console.log(`New User, Create wallets for ${email}!`)
+    const [cipher] = v2.getWalletCiphers(this._userSecret)
     const wallets = await this._createWallets().then(
       wallets => _.map(wallets, w => ({
         chainName: w.chainName,
@@ -105,7 +106,6 @@ export default class Me3 {
         secret: cipher(w.secretRaw),
       })),
     )
-    const [cipher] = v2.getWalletCiphers(this._userSecret)
     for (const w of wallets) {
       await Promise.all([
         this._client.post(
