@@ -158,32 +158,31 @@ var Me3 = (function () {
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, krFileId, isNewUser, wallets, _b, key, salt, password, decryptedKey, _i, wallets_1, w, encrypted;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a, email, krFileId, isNewUser, wallets, encoder, _i, wallets_1, w, encrypted;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         if (lodash_1["default"].isEmpty(this._apiToken)) {
                             throw Error('Error! Operation failed.Please contact me3 team!');
                         }
                         return [4, this._getUserProfile()];
                     case 1:
-                        _a = _c.sent(), email = _a.email, krFileId = _a.krFileId;
+                        _a = _b.sent(), email = _a.email, krFileId = _a.krFileId;
                         return [4, this._loadBackupFile(krFileId)];
                     case 2:
-                        isNewUser = _c.sent();
+                        isNewUser = _b.sent();
                         if (!!isNewUser) return [3, 4];
                         console.log("Already exist, Restore wallets for ".concat(email, "!"));
                         return [4, this._loadWallets()];
-                    case 3: return [2, _c.sent()];
+                    case 3: return [2, _b.sent()];
                     case 4:
                         console.log("New User, Create wallets for ".concat(email, "!"));
                         return [4, this._createWallets()];
                     case 5:
-                        wallets = _c.sent();
-                        _b = this._userSecret, key = _b.key, salt = _b.salt, password = _b.password;
-                        decryptedKey = safeV2_1.aes.decrypt(key, password, salt);
+                        wallets = _b.sent();
+                        encoder = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
                         _i = 0, wallets_1 = wallets;
-                        _c.label = 6;
+                        _b.label = 6;
                     case 6:
                         if (!(_i < wallets_1.length)) return [3, 9];
                         w = wallets_1[_i];
@@ -191,7 +190,7 @@ var Me3 = (function () {
                             chainName: w.chainName,
                             walletName: w.walletName,
                             walletAddress: w.walletAddress,
-                            secret: safeV2_1.aes.encrypt(w.secretRaw, decryptedKey, salt),
+                            secret: encoder(w.secretRaw),
                             needFocus: true
                         });
                         return [4, Promise.all([
@@ -204,8 +203,8 @@ var Me3 = (function () {
                                 }),
                             ])];
                     case 7:
-                        _c.sent();
-                        _c.label = 8;
+                        _b.sent();
+                        _b.label = 8;
                     case 8:
                         _i++;
                         return [3, 6];
@@ -310,12 +309,11 @@ var Me3 = (function () {
     };
     Me3.prototype._loadWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, password, key, salt, decryptedKey, data;
+            var _a, walletDecipher, data;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = this._userSecret, password = _a.password, key = _a.key, salt = _a.salt;
-                        decryptedKey = safeV2_1.aes.decrypt(key, password, salt);
+                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), walletDecipher = _a[1];
                         return [4, this._client.get('/api/light/secretList')];
                     case 1:
                         data = (_b.sent()).data;
@@ -326,7 +324,7 @@ var Me3 = (function () {
                                         chainName: w.chainName,
                                         walletName: w.walletName,
                                         walletAddress: w.walletAddress,
-                                        secret: safeV2_1.aes.decrypt(w.secret, decryptedKey, salt)
+                                        secret: walletDecipher(w.secret)
                                     };
                                 }
                                 catch (e) {

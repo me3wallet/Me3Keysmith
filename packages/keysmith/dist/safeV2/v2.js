@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.decrypt = exports.encrypt = void 0;
+exports.getWalletCiphers = exports.decrypt = exports.encrypt = void 0;
 var lodash_1 = __importDefault(require("lodash"));
 var aes = __importStar(require("./aes"));
 var rsa = __importStar(require("./rsa"));
@@ -53,4 +53,16 @@ function decrypt(data, commSecret) {
     return aes.decrypt(ret, commSecret.aesPwd, commSecret.aesSalt);
 }
 exports.decrypt = decrypt;
+function getWalletCiphers(krData) {
+    if (lodash_1["default"].isEmpty(krData)) {
+        throw Error('Wrong KR info!');
+    }
+    var key = krData.key, salt = krData.salt, password = krData.password;
+    var decryptedKey = aes.decrypt(key, password, salt);
+    return [
+        function (plainPK) { return aes.encrypt(plainPK, decryptedKey, salt); },
+        function (encryptedPK) { return aes.decrypt(encryptedPK, decryptedKey, salt); },
+    ];
+}
+exports.getWalletCiphers = getWalletCiphers;
 //# sourceMappingURL=v2.js.map
