@@ -9,6 +9,7 @@ import { CommData, DriveName, ME3Config } from './types'
 import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safe'
+import { signTransaction } from './transaction'
 
 export default class Me3 {
   private readonly _gClient: Google
@@ -153,6 +154,25 @@ export default class Me3 {
 
     const decrypted = v2.decrypt(data, secure)
     return JSON.parse(decrypted)
+  }
+
+
+  /**
+   * Signs a transaction
+   * Only ETH is support at this time
+   * @param series: currency of the transaction to be executed - btc, eth, fil, bch, dot, ltc
+   * @param walletSecret: secret for the wallet executing the transaction
+   * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
+   */
+  async signTransaction(series, walletSecret, transactionRequest) {
+    const { password, key, salt } = this._userSecret!
+    const decryptedKey = aes.decrypt(key, password, salt)
+    
+    return await signTransaction({
+      series,
+      privateKey: aes.decrypt(walletSecret, decryptedKey, salt),
+      transactionRequest,
+    })
   }
 
   private async _generateQR(content: string): Promise<string> {
