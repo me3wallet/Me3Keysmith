@@ -158,7 +158,7 @@ var Me3 = (function () {
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, krFileId, isNewUser, wallets, encoder, _i, wallets_1, w, encrypted;
+            var _a, email, krFileId, isNewUser, wallets, pkCipher, _i, wallets_1, w, encrypted;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -180,7 +180,7 @@ var Me3 = (function () {
                         return [4, this._createWallets()];
                     case 5:
                         wallets = _b.sent();
-                        encoder = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
+                        pkCipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
                         _i = 0, wallets_1 = wallets;
                         _b.label = 6;
                     case 6:
@@ -190,7 +190,7 @@ var Me3 = (function () {
                             chainName: w.chainName,
                             walletName: w.walletName,
                             walletAddress: w.walletAddress,
-                            secret: encoder(w.secretRaw),
+                            secret: pkCipher(w.secretRaw),
                             needFocus: true
                         });
                         return [4, Promise.all([
@@ -309,31 +309,18 @@ var Me3 = (function () {
     };
     Me3.prototype._loadWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, walletDecipher, data;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), walletDecipher = _a[1];
-                        return [4, this._client.get('/api/light/secretList')];
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._client.get('/api/light/secretList')];
                     case 1:
-                        data = (_b.sent()).data;
-                        return [2, lodash_1["default"].chain(data)
-                                .map(function (w) {
-                                try {
-                                    return {
-                                        chainName: w.chainName,
-                                        walletName: w.walletName,
-                                        walletAddress: w.walletAddress,
-                                        secret: walletDecipher(w.secret)
-                                    };
-                                }
-                                catch (e) {
-                                    console.log("Wallet - [".concat(w.chainName, "::").concat(w.walletName, "::").concat(w.walletAddress, " decryption failed"), lodash_1["default"].get(e, 'message'));
-                                }
-                                return undefined;
-                            })
-                                .compact()
-                                .value()];
+                        data = (_a.sent()).data;
+                        return [2, lodash_1["default"].map(data, function (w) { return ({
+                                chainName: w.chainName,
+                                walletName: w.walletName,
+                                walletAddress: w.walletAddress,
+                                secret: w.secret
+                            }); })];
                 }
             });
         });

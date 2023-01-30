@@ -108,7 +108,7 @@ export default class Me3 {
 
     console.log(`New User, Create wallets for ${email}!`)
     const wallets = await this._createWallets()
-    const [encoder] = v2.getWalletCiphers(this._userSecret)
+    const [pkCipher] = v2.getWalletCiphers(this._userSecret)
 
 
     for (const w of wallets) {
@@ -116,7 +116,7 @@ export default class Me3 {
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
-        secret: encoder(w.secretRaw),
+        secret: pkCipher(w.secretRaw),
         needFocus: true,
       })
 
@@ -210,28 +210,13 @@ export default class Me3 {
   }
 
   private async _loadWallets() {
-    const [, walletDecipher] = v2.getWalletCiphers(this._userSecret)
-
     const { data } = await this._client.get('/api/light/secretList')
-    return _.chain(data)
-      .map((w) => {
-        try {
-          return {
-            chainName: w.chainName,
-            walletName: w.walletName,
-            walletAddress: w.walletAddress,
-            secret: walletDecipher(w.secret),
-          }
-        } catch (e) {
-          console.log(
-            `Wallet - [${w.chainName}::${w.walletName}::${w.walletAddress} decryption failed`,
-            _.get(e, 'message'),
-          )
-        }
-        return undefined
-      })
-      .compact()
-      .value()
+    return _.map(data, (w) => ({
+      chainName: w.chainName,
+      walletName: w.walletName,
+      walletAddress: w.walletAddress,
+      secret: w.secret,
+    }))
   }
 
   private async _loadBackupFile(krFileId?: string) {
