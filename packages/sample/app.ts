@@ -15,14 +15,12 @@ const server = app.listen(process.env.PORT || 5000, () => {
 const me3 = new Me3({
   endpoint: process.env.endpoint,
   partnerId: process.env.partner,
-  client_id: process.env.google,
-  client_secret: process.env.secret,
-  redirect_uris: [process.env.redirect],
+  redirect_url: process.env.redirect,
 })
 
 app.get('/', async function (req, res) {
   if (!_.has(req.query, 'code')) {
-    const auth_url = await me3.getAuthLink('http://localhost:3000/')
+    const auth_url = await me3.getAuthLink(process.env.redirect)
     res.redirect(auth_url)
     return
   }
