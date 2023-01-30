@@ -23,6 +23,8 @@ const me3 = new Me3({
     redirect_uris: [process.env.redirect],
 })
 
+let wallets = []
+
 // initiate Google OAuth2 access
 app.get('/initiateAccess', async (req: Request, res: Response) => {
     const gAuthUrl = await me3.getGAuthUrl()
@@ -42,7 +44,7 @@ app.get('/', async function (req, res) {
     const success = await me3.getGToken(code)
     if (success) {
         try {
-            const wallets = await me3.getWallets()
+            wallets = await me3.getWallets()
             console.table(wallets)
             res.redirect('https://www.me3.io/')
         } catch (e) {
@@ -55,10 +57,11 @@ app.get('/', async function (req, res) {
 })
 
 app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
+        if (_.isEmpty(wallets)) {
+            return res.json({ error: 'Oops, ERROR!', msg: 'No wallets loaded' })
+        }
         try {
             const { series, tx } = req.body
-            const wallets = await me3.getWallets()
-
             const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
             const signed = await me3.signTransaction(
                 series,
