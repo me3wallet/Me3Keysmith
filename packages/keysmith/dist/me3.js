@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -121,52 +132,49 @@ var Me3 = (function () {
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var email, data, isNewUser, wallets, _a, key, salt, password, decryptedKey, _i, wallets_1, w, encrypted;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var email, data, isNewUser, cipher, wallets, _i, wallets_1, w;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0: return [4, this._gClient.getUserEmail()];
                     case 1:
-                        email = _b.sent();
+                        email = _a.sent();
                         return [4, this._exchangeKey(email)];
                     case 2:
-                        _b.sent();
+                        _a.sent();
                         return [4, this._client.post('/api/light/register', null, {
                                 params: { faceId: email }
                             })];
                     case 3:
-                        data = (_b.sent()).data;
+                        data = (_a.sent()).data;
                         this._apiToken = lodash_1["default"].get(data, 'token', '');
                         if (lodash_1["default"].isEmpty(this._apiToken)) {
                             throw Error('Error! Operation failed.Please contact me3 team!');
                         }
                         return [4, this._loadBackupFile(data)];
                     case 4:
-                        isNewUser = _b.sent();
+                        isNewUser = _a.sent();
                         if (!!isNewUser) return [3, 6];
                         console.log("Already exist, Restore wallets for ".concat(email, "!"));
                         return [4, this._loadWallets()];
-                    case 5: return [2, _b.sent()];
+                    case 5: return [2, _a.sent()];
                     case 6:
                         console.log("New User, Create wallets for ".concat(email, "!"));
-                        return [4, this._createWallets()];
+                        cipher = safe_1.v2.getWalletCiphers(this._userSecret)[0];
+                        return [4, this._createWallets().then(function (wallets) { return lodash_1["default"].map(wallets, function (w) { return ({
+                                chainName: w.chainName,
+                                walletName: w.walletName,
+                                walletAddress: w.walletAddress,
+                                secret: cipher(w.secretRaw)
+                            }); }); })];
                     case 7:
-                        wallets = _b.sent();
-                        _a = this._userSecret, key = _a.key, salt = _a.salt, password = _a.password;
-                        decryptedKey = safe_1.aes.decrypt(key, password, salt);
+                        wallets = _a.sent();
                         _i = 0, wallets_1 = wallets;
-                        _b.label = 8;
+                        _a.label = 8;
                     case 8:
                         if (!(_i < wallets_1.length)) return [3, 11];
                         w = wallets_1[_i];
-                        encrypted = this.encryptData({
-                            chainName: w.chainName,
-                            walletName: w.walletName,
-                            walletAddress: w.walletAddress,
-                            secret: safe_1.aes.encrypt(w.secretRaw, decryptedKey, salt),
-                            needFocus: true
-                        });
                         return [4, Promise.all([
-                                this._client.post('/api/light/addWallet', encrypted),
+                                this._client.post('/api/light/addWallet', this.encryptData(__assign(__assign({}, w), { needFocus: true }))),
                                 this._client.post('/api/mainChain/ping', null, {
                                     params: {
                                         chainName: w.chainName,
@@ -175,8 +183,8 @@ var Me3 = (function () {
                                 }),
                             ])];
                     case 9:
-                        _b.sent();
-                        _b.label = 10;
+                        _a.sent();
+                        _a.label = 10;
                     case 10:
                         _i++;
                         return [3, 8];
@@ -218,19 +226,24 @@ var Me3 = (function () {
         var decrypted = safe_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
     };
-    Me3.prototype.signTransaction = function (series, walletData, transactionRequest) {
+    Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var privateKey;
+            var ciphers, tx, signed;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        privateKey = this._getWalletPrivateKey(walletData);
+                        ciphers = safe_1.v2.getWalletCiphers(this._userSecret);
+                        tx = __assign(__assign({}, transactionRequest), { value: ethers_1.utils.parseEther(transactionRequest.value) });
+                        console.log('tx', tx);
                         return [4, (0, transaction_1.signTransaction)({
                                 series: series,
-                                privateKey: privateKey,
+                                privateKey: ciphers[1](walletSecret),
                                 transactionRequest: transactionRequest
                             })];
-                    case 1: return [2, _a.sent()];
+                    case 1:
+                        signed = _a.sent();
+                        console.log('me3::signTransaciont', signed);
+                        return [2, signed];
                 }
             });
         });
@@ -298,32 +311,13 @@ var Me3 = (function () {
     };
     Me3.prototype._loadWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, password, key, salt, decryptedKey, data;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this._userSecret, password = _a.password, key = _a.key, salt = _a.salt;
-                        decryptedKey = safe_1.aes.decrypt(key, password, salt);
-                        return [4, this._client.get('/api/light/secretList')];
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._client.get('/api/light/secretList')];
                     case 1:
-                        data = (_b.sent()).data;
-                        return [2, lodash_1["default"].chain(data)
-                                .map(function (w) {
-                                try {
-                                    return {
-                                        chainName: w.chainName,
-                                        walletName: w.walletName,
-                                        walletAddress: w.walletAddress,
-                                        secret: safe_1.aes.decrypt(w.secret, decryptedKey, salt)
-                                    };
-                                }
-                                catch (e) {
-                                    console.log("Wallet - [".concat(w.chainName, "::").concat(w.walletName, "::").concat(w.walletAddress, " decryption failed"), lodash_1["default"].get(e, 'message'));
-                                }
-                                return undefined;
-                            })
-                                .compact()
-                                .value()];
+                        data = (_a.sent()).data;
+                        return [2, data];
                 }
             });
         });
@@ -399,13 +393,6 @@ var Me3 = (function () {
                 }
             });
         });
-    };
-    Me3.prototype._getWalletPrivateKey = function (walletData) {
-        if (!walletData.secret) {
-            throw new Error('walletData corrupted, please use me3.getWallet() to fetch user\'s latest wallets');
-        }
-        var wallet = new ethers_1.ethers.Wallet(walletData.secret);
-        return wallet.privateKey;
     };
     return Me3;
 }());
