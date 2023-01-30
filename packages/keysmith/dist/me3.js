@@ -227,17 +227,17 @@ var Me3 = (function () {
     };
     Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var ciphers;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, decipher;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        ciphers = safe_1.v2.getWalletCiphers(this._userSecret);
+                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
                         return [4, (0, transaction_1.signTransaction)({
                                 series: series,
-                                privateKey: ciphers[1](walletSecret),
+                                privateKey: decipher(walletSecret),
                                 transactionRequest: transactionRequest
                             })];
-                    case 1: return [2, _a.sent()];
+                    case 1: return [2, _b.sent()];
                 }
             });
         });

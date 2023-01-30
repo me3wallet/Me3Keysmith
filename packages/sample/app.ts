@@ -44,7 +44,7 @@ app.get('/', async function (req, res) {
         try {
             const wallets = await me3.getWallets()
             console.table(wallets)
-            res.redirect('https://www.avarta.io/')
+            res.redirect('https://www.me3.io/')
         } catch (e) {
             res.json({ error: 'Oops, ERROR!', msg: e.message })
         }

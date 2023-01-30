@@ -168,11 +168,11 @@ export default class Me3 {
    * @return string signedTransaction
    */
   async signTransaction(series, walletSecret, transactionRequest) {
-    const ciphers = v2.getWalletCiphers(this._userSecret)
+    const [, decipher] = v2.getWalletCiphers(this._userSecret)
 
     return await signTransaction({
       series,
-      privateKey: ciphers[1](walletSecret),
+      privateKey: decipher(walletSecret),
       transactionRequest,
     })
   }
