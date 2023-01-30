@@ -84,7 +84,6 @@ var wallet_1 = __importDefault(require("./wallet"));
 var google_1 = __importDefault(require("./google"));
 var safe_1 = require("./safe");
 var transaction_1 = require("./transaction");
-var ethers_1 = require("ethers");
 var Me3 = (function () {
     function Me3(credential) {
         this._gClient = new google_1["default"](credential.client_id, credential.client_secret, credential.redirect_uris);
@@ -228,22 +227,17 @@ var Me3 = (function () {
     };
     Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var ciphers, tx, signed;
+            var ciphers;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         ciphers = safe_1.v2.getWalletCiphers(this._userSecret);
-                        tx = __assign(__assign({}, transactionRequest), { value: ethers_1.utils.parseEther(transactionRequest.value) });
-                        console.log('tx', tx);
                         return [4, (0, transaction_1.signTransaction)({
                                 series: series,
                                 privateKey: ciphers[1](walletSecret),
                                 transactionRequest: transactionRequest
                             })];
-                    case 1:
-                        signed = _a.sent();
-                        console.log('me3::signTransaciont', signed);
-                        return [2, signed];
+                    case 1: return [2, _a.sent()];
                 }
             });
         });
