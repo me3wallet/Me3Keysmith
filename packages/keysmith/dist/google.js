@@ -80,7 +80,8 @@ var Google = (function () {
                         return [4, this._auth.getToken(code)];
                     case 1:
                         tokens = (_a.sent()).tokens;
-                        console.log(tokens);
+                        console.log('time now> ', new Date().toISOString());
+                        tokens.expiry_date && console.log('token_expiry >', new Date(tokens.expiry_date).toISOString());
                         this._auth.setCredentials(tokens);
                         return [2, true];
                 }

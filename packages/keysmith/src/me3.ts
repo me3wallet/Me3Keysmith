@@ -10,6 +10,7 @@ import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safe'
 import { signTransaction } from './transaction'
+import { ethers } from 'ethers'
 
 export default class Me3 {
   private readonly _gClient: Google
@@ -156,21 +157,20 @@ export default class Me3 {
     return JSON.parse(decrypted)
   }
 
-
   /**
    * Signs a transaction
-   * Only ETH is support at this time
+   * Only eth series is supported at this time
    * @param series: currency of the transaction to be executed - btc, eth, fil, bch, dot, ltc
-   * @param walletSecret: secret for the wallet executing the transaction
+   * @param walletData: details of the acting wallet {@link WalletData}
    * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
+   * @return string signedTransaction
    */
-  async signTransaction(series, walletSecret, transactionRequest) {
-    const { password, key, salt } = this._userSecret!
-    const decryptedKey = aes.decrypt(key, password, salt)
-    
+  async signTransaction(series, walletData, transactionRequest) {
+    const privateKey = this._getWalletPrivateKey(walletData)
+
     return await signTransaction({
       series,
-      privateKey: aes.decrypt(walletSecret, decryptedKey, salt),
+      privateKey,
       transactionRequest,
     })
   }
@@ -298,5 +298,19 @@ export default class Me3 {
 
     this._myPriRsa = privateKey
     this._serverPubRsa = data
+  }
+
+  /**
+   * @param walletData: details of the acting wallet {@link WalletData}
+   * @private
+   * @return privateKey string
+   */
+  private _getWalletPrivateKey(walletData) {
+    if (!walletData.secret) {
+      throw new Error('walletData corrupted, please use me3.getWallet() to fetch user\'s latest wallets')
+    }
+
+    const wallet = new ethers.Wallet(walletData.secret)
+    return wallet.privateKey
   }
 }

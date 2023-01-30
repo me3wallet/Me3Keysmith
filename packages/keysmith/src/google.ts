@@ -47,7 +47,8 @@ export default class Google {
     if (_.isEmpty(code)) return false
 
     const { tokens } = await this._auth.getToken(code)
-    console.log(tokens)
+    console.log('time now> ', new Date().toISOString())
+    tokens!.expiry_date && console.log('token_expiry >', new Date(tokens.expiry_date).toISOString())
     this._auth.setCredentials(tokens)
     return true
   }

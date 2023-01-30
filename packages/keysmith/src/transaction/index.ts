@@ -12,10 +12,7 @@ export const signTransaction = async ({
         }
         case 'ltc':
         case 'bch':
-        case 'btc': {
-            // return await performSignBtcTransaction(series);
-            throw new Error('Not implemented yet')
-        }
+        case 'btc':
         case 'fil':
         case 'dot': {
             throw new Error('Not implemented yet')
