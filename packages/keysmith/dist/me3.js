@@ -72,6 +72,8 @@ var types_1 = require("./types");
 var wallet_1 = __importDefault(require("./wallet"));
 var google_1 = __importDefault(require("./google"));
 var safe_1 = require("./safe");
+var transaction_1 = require("./transaction");
+var ethers_1 = require("ethers");
 var Me3 = (function () {
     function Me3(credential) {
         this._gClient = new google_1["default"](credential.client_id, credential.client_secret, credential.redirect_uris);
@@ -215,6 +217,23 @@ var Me3 = (function () {
         }
         var decrypted = safe_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
+    };
+    Me3.prototype.signTransaction = function (series, walletData, transactionRequest) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateKey;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        privateKey = this._getWalletPrivateKey(walletData);
+                        return [4, (0, transaction_1.signTransaction)({
+                                series: series,
+                                privateKey: privateKey,
+                                transactionRequest: transactionRequest
+                            })];
+                    case 1: return [2, _a.sent()];
+                }
+            });
+        });
     };
     Me3.prototype._generateQR = function (content) {
         return __awaiter(this, void 0, void 0, function () {
@@ -380,6 +399,13 @@ var Me3 = (function () {
                 }
             });
         });
+    };
+    Me3.prototype._getWalletPrivateKey = function (walletData) {
+        if (!walletData.secret) {
+            throw new Error('walletData corrupted, please use me3.getWallet() to fetch user\'s latest wallets');
+        }
+        var wallet = new ethers_1.ethers.Wallet(walletData.secret);
+        return wallet.privateKey;
     };
     return Me3;
 }());

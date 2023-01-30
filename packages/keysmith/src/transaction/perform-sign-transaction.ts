@@ -7,7 +7,7 @@ export const performSignEthTransaction = async (
     transactionRequest: TransactionRequest
 ): Promise<string> => {
     const wallet = new ethers.Wallet(privateKey)
-    return wallet.signTransaction(transactionRequest)
+    return await wallet.signTransaction(transactionRequest)
 }
 
 export default {
