@@ -11,14 +11,13 @@ export default class Me3 {
     me3ApiClient(): AxiosInstance;
     getGAuthUrl(): any;
     getGToken(redirectUrl: string): Promise<boolean>;
-    getWallets(): Promise<any[]>;
+    getWallets(): Promise<any>;
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
-    signTransaction(series: any, walletData: any, transactionRequest: any): Promise<string | void>;
+    signTransaction(series: any, walletSecret: any, transactionRequest: any): Promise<string>;
     private _generateQR;
     private _createWallets;
     private _loadWallets;
     private _loadBackupFile;
     private _exchangeKey;
-    private _getWalletPrivateKey;
 }
