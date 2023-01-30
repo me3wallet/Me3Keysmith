@@ -5,7 +5,8 @@ export const signTransaction = async ({
     series,
     privateKey,
     transactionRequest,
-}: SignTransactionParams): Promise<string | void> => {
+}: SignTransactionParams): Promise<string> => {
+    console.log('signTransaction::transactionRequest to sign', transactionRequest)
     switch (series) {
         case 'eth': {
             return await performSignEthTransaction(privateKey, transactionRequest)

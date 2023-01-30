@@ -45,6 +45,7 @@ var signTransaction = function (_a) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
+                    console.log('signTransaction::transactionRequest', transactionRequest);
                     _b = series;
                     switch (_b) {
                         case 'eth': return [3, 1];
