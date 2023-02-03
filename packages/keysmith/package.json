@@ -1,5 +1,5 @@
 {
-  "name": "@me3/keysmith",
+  "name": "@me3technology/keysmith_demo",
   "version": "0.0.2",
   "description": "Me3 Key Generator Module",
   "keywords": [
@@ -27,7 +27,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "lint": "eslint . --ext .ts --fix",
     "test": "jest --config jestconfig.json",
     "prepare": "npm run build",

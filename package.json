@@ -13,7 +13,8 @@
     "build": "lerna run build",
     "dev": "yarn bootstrap && yarn serve",
     "prepare": "npm run bootstrap && npm run build",
-    "serve": "lerna run --scope @me3/keysmith --stream --parallel --scope @me3/sample serve",
+    "prerelease": "lerna exec yarn install --scope \"@me3technology/*\" -- && lerna run build",
+    "serve": "lerna run --scope @me3technology/keysmith --stream --parallel --scope @me3technology/sample serve",
     "lint": "eslint . --ext .ts --fix",
     "test:keysmith": "lerna run test --scope @me3/keysmith"
   },

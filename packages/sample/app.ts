@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import { AddressInfo } from 'net'
 import express, { Request, Response } from 'express'
 import _ from 'lodash'
-import Me3 from '@me3/keysmith'
+import Me3 from '@me3technology/keysmith_demo'
 
 import { utils } from 'ethers'
 import bodyParser from 'body-parser'
