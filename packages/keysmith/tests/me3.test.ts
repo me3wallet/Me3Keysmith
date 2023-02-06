@@ -1,5 +1,5 @@
 import Me3 from '../src'
-import { CONFIG, REDIRECTED } from './env.test'
+import { CONFIG, REDIRECTED } from './fixtures/configs'
 import { utils } from 'ethers'
 import sinon from 'sinon'
 

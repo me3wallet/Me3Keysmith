@@ -1,5 +1,5 @@
 import Google from '../src/google'
-import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './env.test'
+import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './fixtures/configs'
 
 describe('Google class testing', () => {
   const gClient = new Google(

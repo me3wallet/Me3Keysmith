@@ -10,5 +10,6 @@
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
   "collectCoverageFrom": ["src/**/*.{ts,tsx}"],
   "collectCoverage":true,
+  "testPathIgnorePatterns": ["<rootDir>/tests/fixtures"],
   "testTimeout": 100000
 }

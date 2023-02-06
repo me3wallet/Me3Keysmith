@@ -1,4 +1,4 @@
-import { ME3Config } from '../src/types'
+import { ME3Config } from '../../src/types'
 
 export const CONFIG: ME3Config = {
   endpoint: '',

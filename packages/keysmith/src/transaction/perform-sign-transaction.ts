@@ -6,7 +6,13 @@ export const performSignEthTransaction = async (
     privateKey: string,
     transactionRequest: TransactionRequest
 ): Promise<string> => {
-    const wallet = new ethers.Wallet(privateKey)
+    let wallet
+
+    try {
+        wallet = new ethers.Wallet(privateKey)
+    } catch (error) {
+        throw new Error('Invalid privateKey provided')
+    }
     return await wallet.signTransaction(transactionRequest)
 }
 
