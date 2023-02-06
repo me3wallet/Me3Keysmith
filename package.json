@@ -16,7 +16,7 @@
     "prerelease": "lerna exec yarn install --scope \"@me3technology/*\" -- && lerna run build",
     "serve": "lerna run --scope @me3technology/keysmith --stream --parallel --scope @me3technology/sample serve",
     "lint": "eslint . --ext .ts --fix",
-    "test:keysmith": "lerna run test --scope @me3/keysmith"
+    "test:keysmith": "lerna run test --scope @me3technology/keysmith_demo"
   },
   "devDependencies": {
     "lerna": "^6.1.0",

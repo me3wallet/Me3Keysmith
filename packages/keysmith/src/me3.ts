@@ -1,6 +1,6 @@
-import path from 'path'
+// import path from 'path'
 import _ from 'lodash'
-import QRLogo from 'qr-with-logo'
+// import QRLogo from 'qr-with-logo'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
@@ -177,19 +177,19 @@ export default class Me3 {
     })
   }
 
-  private async _generateQR(content: string): Promise<string> {
-    const logoPath = path.join(__dirname, '../res', 'logo.png')
-    return new Promise((res, rej) => {
-      QRLogo.generateQRWithLogo(
-        content,
-        logoPath,
-        { errorCorrectionLevel: 'M' },
-        'Base64',
-        'qr.png',
-        (b64: never) => res(b64),
-      ).catch(rej)
-    })
-  }
+  // private async _generateQR(content: string): Promise<string> {
+  //   const logoPath = path.join(__dirname, '../res', 'logo.png')
+  //   return new Promise((res, rej) => {
+  //     QRLogo.generateQRWithLogo(
+  //       content,
+  //       logoPath,
+  //       { errorCorrectionLevel: 'M' },
+  //       'Base64',
+  //       'qr.png',
+  //       (b64: never) => res(b64),
+  //     ).catch(rej)
+  //   })
+  // }
 
   private async _createWallets() {
     const { data: chains } = await this._client.get('/api/mainChain/list')
@@ -247,14 +247,14 @@ export default class Me3 {
     const key = aes.encrypt(`${randStr}${new Date().getTime()}`, password, salt)
     const secret = _.pickBy({ uid, password, salt, key }, _.identity)
     const jsonStr = JSON.stringify(secret)
-    const qrCode = await this._generateQR(jsonStr)
+    // const qrCode = await this._generateQR(jsonStr)
 
-    const [, jsonId] = await Promise.all([
-      this._gClient.saveFiles(
-        this._gClient.b642Readable(qrCode),
-        DriveName.qr,
-        'image/png',
-      ),
+    const [jsonId] = await Promise.all([
+      // this._gClient.saveFiles(
+      //   this._gClient.b642Readable(qrCode),
+      //   DriveName.qr,
+      //   'image/png',
+      // ),
       this._gClient.saveFiles(
         this._gClient.str2Readable(jsonStr),
         DriveName.json,

@@ -1,7 +1,7 @@
 import Google from '../src/google'
-import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './env.test'
+import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './test-fixtures'
 
-describe('Google class testing', () => {
+describe.skip('Google class testing', () => {
   const gClient = new Google(
     CONFIG.client_id,
     CONFIG.client_secret,

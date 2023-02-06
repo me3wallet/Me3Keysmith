@@ -2,7 +2,7 @@ import { aes, v1, v2 } from '../src/safe'
 import * as rsa from '../src/safe/rsa'
 import * as chacha from '../src/safe/chacha'
 
-import { ALICE, RAWKEY } from './env.test'
+import { ALICE, RAWKEY } from './test-fixtures'
 
 describe('Safe testing', () => {
   describe('V1 Testing', () => {

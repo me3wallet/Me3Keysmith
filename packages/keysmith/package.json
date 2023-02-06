@@ -56,7 +56,6 @@
     "body-parser": "^1.20.1",
     "ethers": "^5.7.1",
     "googleapis": "^108.0.0",
-    "qr-with-logo": "^1.0.5",
     "randomstring": "^1.2.2"
   },
   "resolutions": {
