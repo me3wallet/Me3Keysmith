@@ -5,6 +5,7 @@ import sinon from 'sinon'
 
 import { v2, aes } from '../src/safe'
 
+// TODO: Fix broken tests, probably use stubs/mock api calls
 describe.skip('Me3 class testing', () => {
   const me3 = new Me3(CONFIG)
 

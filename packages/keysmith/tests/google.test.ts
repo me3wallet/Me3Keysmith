@@ -1,6 +1,7 @@
 import Google from '../src/google'
 import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './fixtures/configs'
 
+// TODO: Fix broken tests, probably use stubs/mock api calls
 describe.skip('Google class testing', () => {
   const gClient = new Google(
     CONFIG.client_id,
