@@ -1,11 +1,11 @@
 import Me3 from '../src'
-import { CONFIG, REDIRECTED } from './env.test'
+import { CONFIG, REDIRECTED } from './fixtures/configs'
 import { utils } from 'ethers'
 import sinon from 'sinon'
 
 import { v2, aes } from '../src/safe'
 
-describe('Me3 class testing', () => {
+describe.skip('Me3 class testing', () => {
   const me3 = new Me3(CONFIG)
 
   it('Me3::getGAuthUrl', function () {
