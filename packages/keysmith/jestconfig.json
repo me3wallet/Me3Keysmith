@@ -7,6 +7,9 @@
     ]
   },
   "testRegex": "(/tests/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+  "modulePathIgnorePatterns": [
+    "<rootDir>/tests/fixtures"
+  ],
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
   "collectCoverageFrom": ["src/**/*.{ts,tsx}"],
   "collectCoverage":true,
