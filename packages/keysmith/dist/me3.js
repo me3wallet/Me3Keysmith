@@ -73,9 +73,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-var path_1 = __importDefault(require("path"));
 var lodash_1 = __importDefault(require("lodash"));
-var qr_with_logo_1 = __importDefault(require("qr-with-logo"));
 var randomstring_1 = __importDefault(require("randomstring"));
 var bip39 = __importStar(require("bip39"));
 var axios_1 = __importDefault(require("axios"));
@@ -242,17 +240,6 @@ var Me3 = (function () {
             });
         });
     };
-    Me3.prototype._generateQR = function (content) {
-        return __awaiter(this, void 0, void 0, function () {
-            var logoPath;
-            return __generator(this, function (_a) {
-                logoPath = path_1["default"].join(__dirname, '../res', 'logo.png');
-                return [2, new Promise(function (res, rej) {
-                        qr_with_logo_1["default"].generateQRWithLogo(content, logoPath, { errorCorrectionLevel: 'M' }, 'Base64', 'qr.png', function (b64) { return res(b64); })["catch"](rej);
-                    })];
-            });
-        });
-    };
     Me3.prototype._createWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
             var chains, refined, mnemonic, wallets, _loop_1, _i, _a, _b, key, list;
@@ -318,10 +305,10 @@ var Me3 = (function () {
     };
     Me3.prototype._loadBackupFile = function (userDetail) {
         return __awaiter(this, void 0, void 0, function () {
-            var fetchOrUpdateGFileId, uid, password, salt, fileId, _a, randStr, key, secret, jsonStr, qrCode, _b, jsonId;
+            var fetchOrUpdateGFileId, uid, password, salt, fileId, _a, randStr, key, secret, jsonStr, jsonId;
             var _this_1 = this;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         fetchOrUpdateGFileId = function (fileId) { return __awaiter(_this_1, void 0, void 0, function () {
                             return __generator(this, function (_a) {
@@ -334,12 +321,12 @@ var Me3 = (function () {
                         if (!(lodash_1["default"].isNil(uid) || lodash_1["default"].isNil(password) || lodash_1["default"].isNil(salt))) return [3, 3];
                         return [4, fetchOrUpdateGFileId('')];
                     case 1:
-                        fileId = _c.sent();
+                        fileId = _b.sent();
                         if (!!lodash_1["default"].isEmpty(fileId)) return [3, 3];
                         _a = this;
                         return [4, this._gClient.loadFile(fileId)];
                     case 2:
-                        _a._userSecret = _c.sent();
+                        _a._userSecret = _b.sent();
                         return [2, false];
                     case 3:
                         randStr = randomstring_1["default"].generate({
@@ -349,18 +336,14 @@ var Me3 = (function () {
                         key = safe_1.aes.encrypt("".concat(randStr).concat(new Date().getTime()), password, salt);
                         secret = lodash_1["default"].pickBy({ uid: uid, password: password, salt: salt, key: key }, lodash_1["default"].identity);
                         jsonStr = JSON.stringify(secret);
-                        return [4, this._generateQR(jsonStr)];
-                    case 4:
-                        qrCode = _c.sent();
                         return [4, Promise.all([
-                                this._gClient.saveFiles(this._gClient.b642Readable(qrCode), types_1.DriveName.qr, 'image/png'),
                                 this._gClient.saveFiles(this._gClient.str2Readable(jsonStr), types_1.DriveName.json, 'application/json'),
                             ])];
-                    case 5:
-                        _b = _c.sent(), jsonId = _b[1];
+                    case 4:
+                        jsonId = (_b.sent())[0];
                         return [4, fetchOrUpdateGFileId(jsonId)];
-                    case 6:
-                        _c.sent();
+                    case 5:
+                        _b.sent();
                         this._userSecret = secret;
                         return [2, true];
                 }
