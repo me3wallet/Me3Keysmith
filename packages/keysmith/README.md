@@ -11,7 +11,7 @@ Keysmith enables you to create Me3 wallets invisibly. Simply integrate this modu
 ### 1. Initialize the `Me3` instance
 
 ```ts
-import pkg from "@me3/keysmith";
+import pkg from "@me3technology/keysmith";
 const { Me3 } = pkg;
 
 const me3 = new Me3({
@@ -47,7 +47,7 @@ Once completed, the web page would be redirected to `redirect_uris` at step 1, a
 **2.2 Please pass the full redirected url (with parameters) to this method**
 
 ```ts
-const isSuccess = await me3.getGToken('<full redirect url, including parameters>);
+const isSuccess = await me3.getGToken('<full redirect url, including parameters>');
 ```
 
 You can check the success or failure of obtaining the GToken from the return value
