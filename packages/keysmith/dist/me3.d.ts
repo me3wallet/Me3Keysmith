@@ -15,7 +15,6 @@ export default class Me3 {
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
     signTransaction(series: any, walletSecret: any, transactionRequest: any): Promise<string>;
-    private _generateQR;
     private _createWallets;
     private _loadWallets;
     private _loadBackupFile;
