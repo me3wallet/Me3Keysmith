@@ -1,9 +1,7 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
+    "outDir": "dist",
     "module": "commonjs",
-    "target": "es2019",
-    "moduleResolution": "node",
     "declaration": true,
     "noImplicitAny": false,
     "removeComments": true,
@@ -12,10 +10,11 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "target": "es2019",
     "sourceMap": true
   },
   "exclude": [
     "node_modules",
-    "**/node_modules"
+    "./dist/**/*"
   ]
 }
