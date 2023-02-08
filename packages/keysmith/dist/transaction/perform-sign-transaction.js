@@ -43,7 +43,12 @@ var performSignEthTransaction = function (privateKey, transactionRequest) { retu
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                wallet = new ethers_1.ethers.Wallet(privateKey);
+                try {
+                    wallet = new ethers_1.ethers.Wallet(privateKey);
+                }
+                catch (error) {
+                    throw new Error('Invalid privateKey provided');
+                }
                 return [4, wallet.signTransaction(transactionRequest)];
             case 1: return [2, _a.sent()];
         }

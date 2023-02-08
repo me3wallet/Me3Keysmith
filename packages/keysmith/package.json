@@ -1,5 +1,8 @@
 {
-  "name": "@me3/keysmith",
+  "name": "@me3technology/keysmith",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "version": "0.0.2",
   "description": "Me3 Key Generator Module",
   "keywords": [
