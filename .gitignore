@@ -2,7 +2,10 @@
 **/.env
 **/dist
 !packages/keysmith/dist
+**/lib
 
 **/.idea
 **/.vscode
 **/*.log
+
+**/.npmrc

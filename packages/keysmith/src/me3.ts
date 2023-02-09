@@ -1,6 +1,6 @@
-import path from 'path'
+// import path from 'path'
 import _ from 'lodash'
-import QRLogo from 'qr-with-logo'
+// import QRLogo from 'qr-with-logo'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
@@ -9,6 +9,7 @@ import { CommData, DriveName, ME3Config, Tokens } from './types'
 import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safeV2'
+import { signTransaction } from './transaction'
 
 export default class Me3 {
   private _gClient: Google
@@ -31,36 +32,36 @@ export default class Me3 {
     this._client.interceptors.request.use(function (
       config: AxiosRequestConfig,
     ) {
-      let chain = _.chain(companyHeader)
-        .pickBy(_.identity)
-
+      let chain = _.chain(companyHeader).pickBy(_.identity)
       if (!_.isEmpty(_this._apiToken?.kc_access)) {
         chain = chain.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
       }
       config.headers = chain.merge(config.headers).value()
       return config
     })
-    this._client.interceptors.response.use(function (resp: AxiosResponse) {
-      let { data } = resp.data
-      const isCipherBody = _.every(['data', 'secret'], _.partial(_.has, data))
-      if (isCipherBody) {
-        data = _this.decryptData(data, false)
-      }
-      resp.data = data
-      return resp
-    },
-    function (err) {
-      const status = err.response ? err.response.status : null
+    this._client.interceptors.response.use(
+      function (resp: AxiosResponse) {
+        let { data } = resp.data
+        const isCipherBody = _.every(['data', 'secret'], _.partial(_.has, data))
+        if (isCipherBody) {
+          data = _this.decryptData(data, false)
+        }
+        resp.data = data
+        return resp
+      },
+      function (err) {
+        const status = err.response ? err.response.status : null
 
-      if (status === 401) {
-        return _this._refreshToken().then(_ => {
-          err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
-          return _this._client.request(err.config)
-        })
-      }
+        if (status === 401) {
+          return _this._refreshToken().then(_ => {
+            err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
+            return _this._client.request(err.config)
+          })
+        }
 
-      return Promise.reject(err)
-    })
+        return Promise.reject(err)
+      }
+    )
   }
 
   /**
@@ -167,19 +168,37 @@ export default class Me3 {
     return JSON.parse(decrypted)
   }
 
-  private async _generateQR(content: string): Promise<string> {
-    const logoPath = path.join(__dirname, '../res', 'logo.png')
-    return new Promise((res, rej) => {
-      QRLogo.generateQRWithLogo(
-        content,
-        logoPath,
-        { errorCorrectionLevel: 'M' },
-        'Base64',
-        'qr.png',
-        (b64: never) => res(b64),
-      ).catch(rej)
+  /**
+   * Signs a transaction
+   * Only eth series is supported at this time
+   * @param series: currency of the transaction to be executed - btc, eth, fil, bch, dot, ltc
+   * @param walletSecret: wallet secret
+   * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
+   * @return string signedTransaction
+   */
+  async signTransaction(series, walletSecret, transactionRequest) {
+    const [, decipher] = v2.getWalletCiphers(this._userSecret)
+
+    return await signTransaction({
+      series,
+      privateKey: decipher(walletSecret),
+      transactionRequest,
     })
   }
+
+  // private async _generateQR(content: string): Promise<string> {
+  //   const logoPath = path.join(__dirname, '../res', 'logo.png')
+  //   return new Promise((res, rej) => {
+  //     QRLogo.generateQRWithLogo(
+  //       content,
+  //       logoPath,
+  //       { errorCorrectionLevel: 'M' },
+  //       'Base64',
+  //       'qr.png',
+  //       (b64: never) => res(b64),
+  //     ).catch(rej)
+  //   })
+  // }
 
   private async _createWallets() {
     const { data: chains } = await this._client.get('/api/mainChain/list')
@@ -240,19 +259,19 @@ export default class Me3 {
     const key = aes.encrypt(`${randStr}${new Date().getTime()}`, password, salt)
     const secret = _.pickBy({ uid, password, salt, key }, _.identity)
     const jsonStr = JSON.stringify(secret)
-    const qrCode = await this._generateQR(jsonStr)
+    // const qrCode = await this._generateQR(jsonStr)
 
-    const [, jsonId] = await Promise.all([
-      this._gClient.saveFile(
-        this._gClient.b642Readable(qrCode),
-        DriveName.qr,
-        'image/png',
-      ),
+    const [jsonId] = await Promise.all([
       this._gClient.saveFile(
         this._gClient.str2Readable(jsonStr),
         DriveName.json,
         'application/json',
       ),
+      // this._gClient.saveFile(
+      //   this._gClient.b642Readable(qrCode),
+      //   DriveName.qr,
+      //   'image/png',
+      // ),
     ])
     await updateGFileId(jsonId!)
     this._userSecret = secret

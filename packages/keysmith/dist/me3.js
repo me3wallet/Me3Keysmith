@@ -62,9 +62,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-var path_1 = __importDefault(require("path"));
 var lodash_1 = __importDefault(require("lodash"));
-var qr_with_logo_1 = __importDefault(require("qr-with-logo"));
 var randomstring_1 = __importDefault(require("randomstring"));
 var bip39 = __importStar(require("bip39"));
 var axios_1 = __importDefault(require("axios"));
@@ -72,6 +70,7 @@ var types_1 = require("./types");
 var wallet_1 = __importDefault(require("./wallet"));
 var google_1 = __importDefault(require("./google"));
 var safeV2_1 = require("./safeV2");
+var transaction_1 = require("./transaction");
 var Me3 = (function () {
     function Me3(credential) {
         this._client = axios_1["default"].create({
@@ -84,8 +83,7 @@ var Me3 = (function () {
         var _this = this;
         this._client.interceptors.request.use(function (config) {
             var _a;
-            var chain = lodash_1["default"].chain(companyHeader)
-                .pickBy(lodash_1["default"].identity);
+            var chain = lodash_1["default"].chain(companyHeader).pickBy(lodash_1["default"].identity);
             if (!lodash_1["default"].isEmpty((_a = _this._apiToken) === null || _a === void 0 ? void 0 : _a.kc_access)) {
                 chain = chain.set('Authorization', "Bearer ".concat(_this._apiToken.kc_access));
             }
@@ -246,14 +244,20 @@ var Me3 = (function () {
         var decrypted = safeV2_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
     };
-    Me3.prototype._generateQR = function (content) {
+    Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var logoPath;
-            return __generator(this, function (_a) {
-                logoPath = path_1["default"].join(__dirname, '../res', 'logo.png');
-                return [2, new Promise(function (res, rej) {
-                        qr_with_logo_1["default"].generateQRWithLogo(content, logoPath, { errorCorrectionLevel: 'M' }, 'Base64', 'qr.png', function (b64) { return res(b64); })["catch"](rej);
-                    })];
+            var _a, decipher;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
+                        return [4, (0, transaction_1.signTransaction)({
+                                series: series,
+                                privateKey: decipher(walletSecret),
+                                transactionRequest: transactionRequest
+                            })];
+                    case 1: return [2, _b.sent()];
+                }
             });
         });
     };
@@ -327,10 +331,10 @@ var Me3 = (function () {
     };
     Me3.prototype._loadBackupFile = function (krFileId) {
         return __awaiter(this, void 0, void 0, function () {
-            var updateGFileId, _a, _b, uid, password, salt, randStr, key, secret, jsonStr, qrCode, _c, jsonId;
+            var updateGFileId, _a, _b, uid, password, salt, randStr, key, secret, jsonStr, jsonId;
             var _this_1 = this;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         updateGFileId = function (fileId) { return __awaiter(_this_1, void 0, void 0, function () {
                             return __generator(this, function (_a) {
@@ -343,7 +347,7 @@ var Me3 = (function () {
                         _a = this;
                         return [4, this._gClient.loadFile(krFileId)];
                     case 1:
-                        _a._userSecret = _d.sent();
+                        _a._userSecret = _c.sent();
                         return [2, false];
                     case 2:
                         _b = this._apiToken, uid = _b.uid, password = _b.password, salt = _b.salt;
@@ -357,18 +361,14 @@ var Me3 = (function () {
                         key = safeV2_1.aes.encrypt("".concat(randStr).concat(new Date().getTime()), password, salt);
                         secret = lodash_1["default"].pickBy({ uid: uid, password: password, salt: salt, key: key }, lodash_1["default"].identity);
                         jsonStr = JSON.stringify(secret);
-                        return [4, this._generateQR(jsonStr)];
-                    case 3:
-                        qrCode = _d.sent();
                         return [4, Promise.all([
-                                this._gClient.saveFile(this._gClient.b642Readable(qrCode), types_1.DriveName.qr, 'image/png'),
                                 this._gClient.saveFile(this._gClient.str2Readable(jsonStr), types_1.DriveName.json, 'application/json'),
                             ])];
-                    case 4:
-                        _c = _d.sent(), jsonId = _c[1];
+                    case 3:
+                        jsonId = (_c.sent())[0];
                         return [4, updateGFileId(jsonId)];
-                    case 5:
-                        _d.sent();
+                    case 4:
+                        _c.sent();
                         this._userSecret = secret;
                         return [2, true];
                 }

@@ -1,8 +1,11 @@
 import dotenv from 'dotenv'
 import { AddressInfo } from 'net'
-import express from 'express'
+import express, { Request, Response } from 'express'
 import _ from 'lodash'
-import Me3 from '@me3/keysmith'
+import Me3 from '@me3technology/keysmith'
+
+import { utils } from 'ethers'
+import bodyParser from 'body-parser'
 
 dotenv.config()
 
@@ -18,6 +21,7 @@ const me3 = new Me3({
   redirect_url: process.env.redirect,
 })
 
+let wallets = []
 app.get('/', async function (req, res) {
   if (!_.has(req.query, 'code')) {
     const auth_url = await me3.getAuthLink(process.env.redirect)
@@ -39,9 +43,30 @@ app.get('/', async function (req, res) {
 
 app.get('/wallets', async function (req, res) {
   try {
-    const wallets = await me3.getWallets()
+    wallets = await me3.getWallets()
     res.json(wallets)
   } catch (e) {
     res.send(e)
+  }
+})
+
+app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
+  if (_.isEmpty(wallets)) {
+    return res.json({ error: 'Oops, ERROR!', msg: 'No wallets loaded' })
+  }
+  try {
+    const { series, tx } = req.body
+    const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
+    const signed = await me3.signTransaction(
+      series,
+      walletToSign.secret,
+      {
+        ...tx,
+        value: utils.parseEther(tx.value),
+      })
+
+    return res.json({ data: { signed } })
+  } catch (e) {
+    return res.json({ error: 'Oops, ERROR!', msg: e.message })
   }
 })

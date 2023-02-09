@@ -13,7 +13,7 @@ export default class Me3 {
     getWallets(): Promise<any[]>;
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
-    private _generateQR;
+    signTransaction(series: any, walletSecret: any, transactionRequest: any): Promise<string>;
     private _createWallets;
     private _loadWallets;
     private _loadBackupFile;

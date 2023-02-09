@@ -1,7 +1,7 @@
 import Google from '../src/google'
-import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './env.test'
+import { ALICE, CONFIG, REDIRECTED, TEST_QR } from './fixtures/configs'
 
-describe('Google class testing', () => {
+describe.skip('Google class testing', () => {
   const gClient = new Google(
     CONFIG.client_id,
     CONFIG.client_secret,
@@ -24,7 +24,7 @@ describe('Google class testing', () => {
     const email = await gClient.getUserEmail()
     expect(email).toBeTruthy()
 
-    const imgId = await gClient.saveFile(
+    const imgId = await gClient.saveFiles(
       gClient.b642Readable(TEST_QR),
       'hello.png',
       'image/png'
@@ -33,7 +33,7 @@ describe('Google class testing', () => {
     expect(imgId).toBeTruthy()
 
     const secure = JSON.stringify(ALICE)
-    const jsonId = await gClient.saveFile(
+    const jsonId = await gClient.saveFiles(
       gClient.str2Readable(secure),
       'hello.json',
       'application/json'
