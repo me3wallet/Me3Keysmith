@@ -160,8 +160,7 @@ export default class Me3 {
 
   /**
    * Signs a transaction
-   * Only eth series is supported at this time
-   * @param series: currency of the transaction to be executed - btc, eth, fil, bch, dot, ltc
+   * @param series: chain of the transaction to be executed (in lowercase) - eth, bsc, avax, matic
    * @param walletSecret: wallet secret
    * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
    * @return string signedTransaction

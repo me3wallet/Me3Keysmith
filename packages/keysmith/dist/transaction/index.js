@@ -46,8 +46,11 @@ var signTransaction = function (_a) {
             switch (_c.label) {
                 case 0:
                     console.log('signTransaction::transactionRequest to sign', transactionRequest);
-                    _b = series;
+                    _b = series.toLowerCase();
                     switch (_b) {
+                        case 'avax': return [3, 1];
+                        case 'bsc': return [3, 1];
+                        case 'matic': return [3, 1];
                         case 'eth': return [3, 1];
                         case 'ltc': return [3, 3];
                         case 'bch': return [3, 3];
@@ -56,7 +59,7 @@ var signTransaction = function (_a) {
                         case 'dot': return [3, 3];
                     }
                     return [3, 4];
-                case 1: return [4, (0, perform_sign_transaction_1.performSignEthTransaction)(privateKey, transactionRequest)];
+                case 1: return [4, (0, perform_sign_transaction_1.performSignEvmTransaction)(privateKey, transactionRequest)];
                 case 2: return [2, _c.sent()];
                 case 3:
                     {

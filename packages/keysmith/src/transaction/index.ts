@@ -1,4 +1,4 @@
-import { performSignEthTransaction } from './perform-sign-transaction'
+import { performSignEvmTransaction } from './perform-sign-transaction'
 import { SignTransactionParams } from './domain'
 
 export const signTransaction = async ({
@@ -7,9 +7,12 @@ export const signTransaction = async ({
     transactionRequest,
 }: SignTransactionParams): Promise<string> => {
     console.log('signTransaction::transactionRequest to sign', transactionRequest)
-    switch (series) {
+    switch (series.toLowerCase()) {
+        case 'avax':
+        case 'bsc':
+        case 'matic':
         case 'eth': {
-            return await performSignEthTransaction(privateKey, transactionRequest)
+            return await performSignEvmTransaction(privateKey, transactionRequest)
         }
         case 'ltc':
         case 'bch':

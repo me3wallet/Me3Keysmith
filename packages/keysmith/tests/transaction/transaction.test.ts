@@ -31,7 +31,7 @@ describe('signTransaction unit test', () => {
         })
     })
 
-    it('Should return signed transaction when provided an eth series, valid privateKey and tx', async () => {
+    it('Should return signed transaction when provided an evm (eth) series, valid privateKey and tx', async () => {
         const signedTx = await signTransaction({
             series: 'eth',
             privateKey,
