@@ -5,7 +5,7 @@ import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { CommData, DriveName, ME3Config } from './types'
+import { CommData, DriveName, ME3Config, Me3Wallet } from './types'
 import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safe'
@@ -175,6 +175,26 @@ export default class Me3 {
     })
   }
 
+  async signTx(wallet: Me3Wallet, txRequest) {
+    const chains = await this._getChainList()
+    const chainFound = _.chain(chains)
+        .filter(c => _.toLower(c.name) === _.toLower(wallet.chainName))
+        .head()
+        .value()
+    if (_.isEmpty(chainFound)) {
+      throw Error('Chain not supported')
+    }
+
+    const [, decipher] = v2.getWalletCiphers(this._userSecret)
+
+
+    return await signTransaction({
+      series: chainFound.series,
+      privateKey: decipher(wallet.secret),
+      transactionRequest: txRequest,
+    })
+  }
+
   // private async _generateQR(content: string): Promise<string> {
   //   const logoPath = path.join(__dirname, '../res', 'logo.png')
   //   return new Promise((res, rej) => {
@@ -189,8 +209,13 @@ export default class Me3 {
   //   })
   // }
 
-  private async _createWallets() {
+  private async _getChainList() {
     const { data: chains } = await this._client.get('/api/mainChain/list')
+    return chains
+  }
+
+  private async _createWallets() {
+    const chains = await this._getChainList()
     const refined: Record<string, [any]> = _.reduce(
       chains,
       (result, acc) => {

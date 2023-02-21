@@ -63,13 +63,7 @@ app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
         try {
             const { series, tx } = req.body
             const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
-            const signed = await me3.signTransaction(
-                series,
-                walletToSign.secret,
-                {
-                    ...tx,
-                    value: utils.parseEther(tx.value),
-                })
+            const signed = await me3.signTx(walletToSign, tx)
 
             return res.json({ data: { signed } })
         } catch (e) {
