@@ -36,9 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.performSignEthTransaction = void 0;
+exports.performSignEvmTransaction = void 0;
 var ethers_1 = require("ethers");
-var performSignEthTransaction = function (privateKey, transactionRequest) { return __awaiter(void 0, void 0, void 0, function () {
+var performSignEvmTransaction = function (privateKey, transactionRequest) { return __awaiter(void 0, void 0, void 0, function () {
     var wallet;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -54,8 +54,8 @@ var performSignEthTransaction = function (privateKey, transactionRequest) { retu
         }
     });
 }); };
-exports.performSignEthTransaction = performSignEthTransaction;
+exports.performSignEvmTransaction = performSignEvmTransaction;
 exports["default"] = {
-    performSignEthTransaction: exports.performSignEthTransaction
+    performSignEvmTransaction: exports.performSignEvmTransaction
 };
 //# sourceMappingURL=perform-sign-transaction.js.map

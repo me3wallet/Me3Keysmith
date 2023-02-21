@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 
 import { TransactionRequest } from './domain'
 
-export const performSignEthTransaction = async (
+export const performSignEvmTransaction = async (
     privateKey: string,
     transactionRequest: TransactionRequest
 ): Promise<string> => {
@@ -17,5 +17,5 @@ export const performSignEthTransaction = async (
 }
 
 export default {
-    performSignEthTransaction,
+    performSignEvmTransaction,
 }
