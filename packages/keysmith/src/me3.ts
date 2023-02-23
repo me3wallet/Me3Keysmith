@@ -63,6 +63,25 @@ export default class Me3 {
   me3ApiClient(): AxiosInstance {
     return this._client
   }
+  
+  /**
+   * Please use before getWallets
+   */
+  isInitialized(): boolean {
+    if (_.isEmpty(this._apiToken)) {
+      return false
+    }
+    if (_.isEmpty(this._userSecret)) {
+      return false
+    }
+    if (_.isEmpty(this._myPriRsa)) {
+      return false
+    }
+    if (_.isEmpty(this._serverPubRsa)) {
+      return false
+    }
+    return true
+  }
 
   getGAuthUrl() {
     return this._gClient.generateAuthUrl()
@@ -178,9 +197,9 @@ export default class Me3 {
   async signTx(wallet: Me3Wallet, txRequest) {
     const chains = await this._getChainList()
     const chainFound = _.chain(chains)
-        .filter(c => _.toLower(c.name) === _.toLower(wallet.chainName))
-        .head()
-        .value()
+      .filter(c => _.toLower(c.name) === _.toLower(wallet.chainName))
+      .head()
+      .value()
     if (_.isEmpty(chainFound)) {
       throw Error('Chain not supported')
     }
