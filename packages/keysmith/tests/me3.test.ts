@@ -1,20 +1,20 @@
 import Me3 from '../src'
-import { CONFIG, REDIRECTED } from './fixtures/configs'
+import { CONFIG } from './fixtures/configs'
 import { utils } from 'ethers'
 import sinon from 'sinon'
 
-import { v2, aes } from '../src/safe'
+import { aes, v2 } from '../src/safe'
 
 describe('Me3 class testing', () => {
   const me3 = new Me3(CONFIG)
 
   it('Me3::getGAuthUrl', function () {
-    const authURL = me3.getGAuthUrl()
+    const authURL = me3.getAuthLink('http://localhost:3000')
     console.log(authURL)
     expect(authURL).toBeTruthy()
   })
   it('Me3::getGToken', async function () {
-    const success = await me3.getGToken(REDIRECTED)
+    const success = await me3.getAuthToken('', '', '')
     expect(success).toBe(true)
   })
   it('Me3::getWallets', async function () {

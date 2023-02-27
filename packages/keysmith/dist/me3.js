@@ -112,6 +112,21 @@ var Me3 = (function () {
     Me3.prototype.me3ApiClient = function () {
         return this._client;
     };
+    Me3.prototype.isInitialized = function () {
+        if (lodash_1["default"].isEmpty(this._apiToken)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._userSecret)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._myPriRsa)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._serverPubRsa)) {
+            return false;
+        }
+        return true;
+    };
     Me3.prototype.getAuthLink = function (redirectURL) {
         return __awaiter(this, void 0, void 0, function () {
             var _a, privateKey, publicKey, data;
@@ -156,7 +171,7 @@ var Me3 = (function () {
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, krFileId, isNewUser, wallets, pkCipher, _i, wallets_1, w, encrypted;
+            var _a, email, krFileId, isNewUser, wallets, cipher, _i, wallets_1, w, encrypted;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -178,7 +193,7 @@ var Me3 = (function () {
                         return [4, this._createWallets()];
                     case 5:
                         wallets = _b.sent();
-                        pkCipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
+                        cipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
                         _i = 0, wallets_1 = wallets;
                         _b.label = 6;
                     case 6:
@@ -188,7 +203,7 @@ var Me3 = (function () {
                             chainName: w.chainName,
                             walletName: w.walletName,
                             walletAddress: w.walletAddress,
-                            secret: pkCipher(w.secretRaw),
+                            secret: cipher(w.secretRaw),
                             needFocus: true
                         });
                         return [4, Promise.all([
@@ -276,7 +291,7 @@ var Me3 = (function () {
                         if (lodash_1["default"].isEmpty(chainFound)) {
                             throw Error('Chain not supported');
                         }
-                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
+                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
                         return [4, (0, transaction_1.signTransaction)({
                                 series: chainFound.series,
                                 privateKey: decipher(wallet.secret),
