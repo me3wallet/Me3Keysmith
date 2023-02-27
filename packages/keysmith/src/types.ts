@@ -42,4 +42,11 @@ interface CommData {
   data: string;
 }
 
-export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData }
+interface Me3Wallet {
+  chainName: string;
+  walletName: string;
+  walletAddress: string;
+  secret: string;
+}
+
+export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet }

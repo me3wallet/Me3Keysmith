@@ -1,11 +1,10 @@
+import _ from 'lodash'
 import dotenv from 'dotenv'
 import { AddressInfo } from 'net'
 import express, { Request, Response } from 'express'
-import _ from 'lodash'
-import Me3 from '@me3technology/keysmith'
-
-import { utils } from 'ethers'
 import bodyParser from 'body-parser'
+
+import Me3 from '@me3technology/keysmith'
 
 dotenv.config()
 
@@ -21,6 +20,14 @@ const me3 = new Me3({
   redirect_url: process.env.redirect,
 })
 
+
+// initiate Google OAuth2 access
+app.get('/initiateAccess', async (req: Request, res: Response) => {
+  const gAuthUrl = await me3.getAuthLink(process.env.redirect)
+  return res.json({ data: { url: gAuthUrl } })
+})
+
+// initiateAccess callback handler
 let wallets = []
 app.get('/', async function (req, res) {
   if (!_.has(req.query, 'code')) {
@@ -30,9 +37,9 @@ app.get('/', async function (req, res) {
   }
 
   const success = await me3.getAuthToken(
-    _.get(req.query, 'code') as string,
-    _.get(req.query, 'state') as string,
-    _.get(req.query, 'session_state') as string,
+      _.get(req.query, 'code') as string,
+      _.get(req.query, 'state') as string,
+      _.get(req.query, 'session_state') as string,
   )
   if (success) {
     res.redirect('https://www.me3.io/')
@@ -57,13 +64,7 @@ app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
   try {
     const { series, tx } = req.body
     const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
-    const signed = await me3.signTransaction(
-      series,
-      walletToSign.secret,
-      {
-        ...tx,
-        value: utils.parseEther(tx.value),
-      })
+    const signed = await me3.signTx(walletToSign, tx)
 
     return res.json({ data: { signed } })
   } catch (e) {

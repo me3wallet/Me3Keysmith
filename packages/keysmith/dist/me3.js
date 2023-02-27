@@ -261,14 +261,53 @@ var Me3 = (function () {
             });
         });
     };
+    Me3.prototype.signTx = function (wallet, txRequest) {
+        return __awaiter(this, void 0, void 0, function () {
+            var chains, chainFound, _a, decipher;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4, this._getChainList()];
+                    case 1:
+                        chains = _b.sent();
+                        chainFound = lodash_1["default"].chain(chains)
+                            .filter(function (c) { return lodash_1["default"].toLower(c.name) === lodash_1["default"].toLower(wallet.chainName); })
+                            .head()
+                            .value();
+                        if (lodash_1["default"].isEmpty(chainFound)) {
+                            throw Error('Chain not supported');
+                        }
+                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
+                        return [4, (0, transaction_1.signTransaction)({
+                                series: chainFound.series,
+                                privateKey: decipher(wallet.secret),
+                                transactionRequest: txRequest
+                            })];
+                    case 2: return [2, _b.sent()];
+                }
+            });
+        });
+    };
+    Me3.prototype._getChainList = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var chains;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._client.get('/api/mainChain/list')];
+                    case 1:
+                        chains = (_a.sent()).data;
+                        return [2, chains];
+                }
+            });
+        });
+    };
     Me3.prototype._createWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
             var chains, refined, mnemonic, wallets, _loop_1, _i, _a, _b, key, list;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4, this._client.get('/api/mainChain/list')];
+                    case 0: return [4, this._getChainList()];
                     case 1:
-                        chains = (_c.sent()).data;
+                        chains = _c.sent();
                         refined = lodash_1["default"].reduce(chains, function (result, acc) {
                             var list = result[lodash_1["default"].toLower(acc.series)] || [];
                             list.push({

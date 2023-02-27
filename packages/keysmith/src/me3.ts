@@ -5,7 +5,7 @@ import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { CommData, DriveName, ME3Config, Tokens } from './types'
+import { CommData, DriveName, ME3Config, Tokens, Me3Wallet } from './types'
 import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safeV2'
@@ -18,6 +18,7 @@ export default class Me3 {
   private _apiToken?: Tokens
   private _userSecret?: any
   private _myPriRsa?: string
+  private _serverPubRsa?: string
 
   constructor(credential: ME3Config) {
     this._client = axios.create({
@@ -71,6 +72,25 @@ export default class Me3 {
     return this._client
   }
 
+  /**
+   * Please use before getWallets
+   */
+  isInitialized(): boolean {
+    if (_.isEmpty(this._apiToken)) {
+      return false
+    }
+    if (_.isEmpty(this._userSecret)) {
+      return false
+    }
+    if (_.isEmpty(this._myPriRsa)) {
+      return false
+    }
+    if (_.isEmpty(this._serverPubRsa)) {
+      return false
+    }
+    return true
+  }
+
   async getAuthLink(redirectURL: string): Promise<string> {
     const { privateKey, publicKey } = rsa.genKeyPair()
     this._myPriRsa = privateKey
@@ -109,7 +129,7 @@ export default class Me3 {
 
     console.log(`New User, Create wallets for ${email}!`)
     const wallets = await this._createWallets()
-    const [pkCipher] = v2.getWalletCiphers(this._userSecret)
+    const [cipher] = v2.getWalletCiphers(this._userSecret)
 
 
     for (const w of wallets) {
@@ -117,7 +137,7 @@ export default class Me3 {
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
-        secret: pkCipher(w.secretRaw),
+        secret: cipher(w.secretRaw),
         needFocus: true,
       })
 
@@ -185,6 +205,26 @@ export default class Me3 {
     })
   }
 
+  async signTx(wallet: Me3Wallet, txRequest) {
+    const chains = await this._getChainList()
+    const chainFound = _.chain(chains)
+      .filter(c => _.toLower(c.name) === _.toLower(wallet.chainName))
+      .head()
+      .value()
+    if (_.isEmpty(chainFound)) {
+      throw Error('Chain not supported')
+    }
+
+    const [, decipher] = v2.getWalletCiphers(this._userSecret)
+
+
+    return await signTransaction({
+      series: chainFound.series,
+      privateKey: decipher(wallet.secret),
+      transactionRequest: txRequest,
+    })
+  }
+
   // private async _generateQR(content: string): Promise<string> {
   //   const logoPath = path.join(__dirname, '../res', 'logo.png')
   //   return new Promise((res, rej) => {
@@ -199,8 +239,13 @@ export default class Me3 {
   //   })
   // }
 
-  private async _createWallets() {
+  private async _getChainList() {
     const { data: chains } = await this._client.get('/api/mainChain/list')
+    return chains
+  }
+
+  private async _createWallets() {
+    const chains = await this._getChainList()
     const refined: Record<string, [any]> = _.reduce(
       chains,
       (result, acc) => {
@@ -261,16 +306,16 @@ export default class Me3 {
     // const qrCode = await this._generateQR(jsonStr)
 
     const [jsonId] = await Promise.all([
-      this._gClient.saveFile(
-        this._gClient.str2Readable(jsonStr),
-        DriveName.json,
-        'application/json',
-      ),
       // this._gClient.saveFile(
       //   this._gClient.b642Readable(qrCode),
       //   DriveName.qr,
       //   'image/png',
       // ),
+      this._gClient.saveFile(
+        this._gClient.str2Readable(jsonStr),
+        DriveName.json,
+        'application/json',
+      ),
     ])
     await updateGFileId(jsonId!)
     this._userSecret = secret
