@@ -176,24 +176,12 @@ export default class Me3 {
     return JSON.parse(decrypted)
   }
 
-
   /**
    * Signs a transaction
-   * @param series: chain of the transaction to be executed (in lowercase) - eth, bsc, avax, matic
-   * @param walletSecret: wallet secret
-   * @param transactionRequest: parameters of a transaction {@link TransactionRequest}
+   * @param wallet: wallet to perform signing {@link Me3Wallet}
+   * @param txRequest: parameters of a transaction {@link TransactionRequest}
    * @return string signedTransaction
    */
-  async signTransaction(series, walletSecret, transactionRequest) {
-    const [, decipher] = v2.getWalletCiphers(this._userSecret)
-
-    return await signTransaction({
-      series,
-      privateKey: decipher(walletSecret),
-      transactionRequest,
-    })
-  }
-
   async signTx(wallet: Me3Wallet, txRequest) {
     const chains = await this._getChainList()
     const chainFound = _.chain(chains)

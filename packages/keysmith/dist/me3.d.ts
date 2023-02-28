@@ -9,12 +9,12 @@ export default class Me3 {
     private _serverPubRsa?;
     constructor(credential: ME3Config);
     me3ApiClient(): AxiosInstance;
+    isInitialized(): boolean;
     getGAuthUrl(): any;
     getGToken(redirectUrl: string): Promise<boolean>;
     getWallets(): Promise<any>;
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
-    signTransaction(series: any, walletSecret: any, transactionRequest: any): Promise<string>;
     signTx(wallet: Me3Wallet, txRequest: any): Promise<string>;
     private _getChainList;
     private _createWallets;
