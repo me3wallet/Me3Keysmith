@@ -114,6 +114,21 @@ var Me3 = (function () {
     Me3.prototype.me3ApiClient = function () {
         return this._client;
     };
+    Me3.prototype.isInitialized = function () {
+        if (lodash_1["default"].isEmpty(this._apiToken)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._userSecret)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._myPriRsa)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._serverPubRsa)) {
+            return false;
+        }
+        return true;
+    };
     Me3.prototype.getGAuthUrl = function () {
         return this._gClient.generateAuthUrl();
     };

@@ -9,6 +9,7 @@ export default class Me3 {
     private _serverPubRsa?;
     constructor(credential: ME3Config);
     me3ApiClient(): AxiosInstance;
+    isInitialized(): boolean;
     getGAuthUrl(): any;
     getGToken(redirectUrl: string): Promise<boolean>;
     getWallets(): Promise<any>;
