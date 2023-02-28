@@ -114,6 +114,21 @@ var Me3 = (function () {
     Me3.prototype.me3ApiClient = function () {
         return this._client;
     };
+    Me3.prototype.isInitialized = function () {
+        if (lodash_1["default"].isEmpty(this._apiToken)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._userSecret)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._myPriRsa)) {
+            return false;
+        }
+        if (lodash_1["default"].isEmpty(this._serverPubRsa)) {
+            return false;
+        }
+        return true;
+    };
     Me3.prototype.getGAuthUrl = function () {
         return this._gClient.generateAuthUrl();
     };
@@ -222,23 +237,6 @@ var Me3 = (function () {
         }
         var decrypted = safe_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
-    };
-    Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, decipher;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
-                        return [4, (0, transaction_1.signTransaction)({
-                                series: series,
-                                privateKey: decipher(walletSecret),
-                                transactionRequest: transactionRequest
-                            })];
-                    case 1: return [2, _b.sent()];
-                }
-            });
-        });
     };
     Me3.prototype.signTx = function (wallet, txRequest) {
         return __awaiter(this, void 0, void 0, function () {
