@@ -25,3 +25,11 @@ export const TEST_TOKEN = {
   id_token: '',
   expiry_date: 0,
 }
+
+export const workableConfig: ME3Config = {
+  endpoint: 'https://unicorn-fairy.bounce.io/',
+  partnerId: '3674',
+  client_id: 'uuid',
+  client_secret: 'sample',
+  redirect_uris: ['http://localhost:5656'],
+}

@@ -1,0 +1,11 @@
+{
+  "extension": ["js","ts"],
+  "unhandled-rejections": "strict",
+  "recursive": true,
+  "ui": "bdd",
+  "reporter": "dot",
+  "timeout": 15000,
+  "exit": true,
+  "require": ["ts-node/register"],
+  "watch-files": [""]
+}

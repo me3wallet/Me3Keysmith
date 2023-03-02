@@ -7,6 +7,7 @@ export const signTransaction = async ({
     transactionRequest,
 }: SignTransactionParams): Promise<string> => {
     console.log('signTransaction::transactionRequest to sign', transactionRequest)
+
     switch (series.toLowerCase()) {
         case 'avax':
         case 'bsc':

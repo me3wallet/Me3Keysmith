@@ -10,7 +10,7 @@ export default class Me3 {
     constructor(credential: ME3Config);
     me3ApiClient(): AxiosInstance;
     isInitialized(): boolean;
-    getGAuthUrl(): any;
+    getGAuthUrl(): string;
     getGToken(redirectUrl: string): Promise<boolean>;
     getWallets(): Promise<any>;
     encryptData(data: any, withAES?: boolean): CommData;
