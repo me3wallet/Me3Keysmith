@@ -4,8 +4,8 @@ import express, { Request, Response } from 'express'
 import _ from 'lodash'
 import Me3 from '@me3technology/keysmith'
 
-import { utils } from 'ethers'
 import bodyParser from 'body-parser'
+import * as ethers from 'ethers'
 
 dotenv.config()
 
@@ -63,7 +63,10 @@ app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
         try {
             const { series, tx } = req.body
             const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
-            const signed = await me3.signTx(walletToSign, tx)
+            const signed = await me3.signTx(walletToSign, {
+                ...tx,
+                value: ethers.parseEther(tx.value),
+            })
 
             return res.json({ data: { signed } })
         } catch (e) {

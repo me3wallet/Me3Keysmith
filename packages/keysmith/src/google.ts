@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import url from 'url'
 import { Readable } from 'stream'
-import { google } from 'googleapis'
+import { google, drive_v3, Auth } from 'googleapis'
 
 const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
@@ -10,8 +10,8 @@ const SCOPES = [
 ]
 
 export default class Google {
-  private readonly _auth
-  private readonly _drive
+  private readonly _auth: Auth.OAuth2Client
+  private readonly _drive: drive_v3.Drive
   private readonly _redirectUrl: string
 
   constructor(clientId: string, clientSecret: string, redirectUrls: [string]) {
@@ -33,6 +33,14 @@ export default class Google {
     })
   }
 
+  /**
+   * Tldr: Get user's Google Auth Token after user performs Google SSO
+   * - Extracts code from redirectUrl (returned after user performs Google SSO)
+   * - The code is used to get Google Auth Token
+   * - Token grants this Google Client object authorisation to retrieve user's email address and read+write GDrive
+   * @param redirectUrl -> redirect after user performs Google SSO
+   * @return boolean -> of whether getting user's token was successful
+   */
   async getTokens(redirectUrl: string) {
     let code: string = redirectUrl
     if (
