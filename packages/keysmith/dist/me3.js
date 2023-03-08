@@ -259,23 +259,6 @@ var Me3 = (function () {
         var decrypted = safeV2_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
     };
-    Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, decipher;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
-                        return [4, (0, transaction_1.signTransaction)({
-                                series: series,
-                                privateKey: decipher(walletSecret),
-                                transactionRequest: transactionRequest
-                            })];
-                    case 1: return [2, _b.sent()];
-                }
-            });
-        });
-    };
     Me3.prototype.signTx = function (wallet, txRequest) {
         return __awaiter(this, void 0, void 0, function () {
             var chains, chainFound, _a, decipher;
@@ -439,12 +422,10 @@ var Me3 = (function () {
                         if (lodash_1["default"].isEmpty((_a = this._apiToken) === null || _a === void 0 ? void 0 : _a.kc_refresh)) {
                             return [2, false];
                         }
-                        return [4, axios_1["default"].post("".concat(this._client.defaults.baseURL, "/kc/auth/refresh"), {
-                                refresh: (_b = this._apiToken) === null || _b === void 0 ? void 0 : _b.kc_refresh
-                            })];
+                        return [4, axios_1["default"].post("".concat(this._client.defaults.baseURL, "/kc/auth/refresh"), { refresh: (_b = this._apiToken) === null || _b === void 0 ? void 0 : _b.kc_refresh })];
                     case 1:
                         data = (_c.sent()).data;
-                        this._apiToken = data.data;
+                        this._apiToken = this.decryptData(data.data, false);
                         return [2, true];
                 }
             });
