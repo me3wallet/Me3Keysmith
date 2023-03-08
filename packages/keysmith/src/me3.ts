@@ -216,8 +216,6 @@ export default class Me3 {
     }
 
     const [, decipher] = v2.getWalletCiphers(this._userSecret)
-
-
     return await signTransaction({
       series: chainFound.series,
       privateKey: decipher(wallet.secret),
@@ -328,9 +326,10 @@ export default class Me3 {
     if (_.isEmpty(this._apiToken?.kc_refresh)) {
       return false
     }
-    const { data } = await axios.post(`${this._client.defaults.baseURL}/kc/auth/refresh`, {
-      refresh: this._apiToken?.kc_refresh,
-    })
+    const { data } = await axios.post(
+      `${this._client.defaults.baseURL}/kc/auth/refresh`,
+      { refresh: this._apiToken?.kc_refresh }
+    )
     this._apiToken = this.decryptData(data.data, false)
     return true
   }
