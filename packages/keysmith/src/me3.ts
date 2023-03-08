@@ -331,7 +331,7 @@ export default class Me3 {
     const { data } = await axios.post(`${this._client.defaults.baseURL}/kc/auth/refresh`, {
       refresh: this._apiToken?.kc_refresh,
     })
-    this._apiToken = data.data
+    this._apiToken = this.decryptData(data.data, false)
     return true
   }
 
