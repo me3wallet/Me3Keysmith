@@ -118,7 +118,8 @@ export default class Me3 {
       throw Error('Error! Operation failed.Please contact me3 team!')
     }
 
-    const isNewUser = await this._loadBackupFile(data)
+    const { email, krFileId } = await this._getUserProfile()
+    const isNewUser = await this._loadBackupFile(krFileId)
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`)
       return await this._loadWallets()

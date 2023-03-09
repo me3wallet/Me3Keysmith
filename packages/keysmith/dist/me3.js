@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -171,7 +182,7 @@ var Me3 = (function () {
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, krFileId, isNewUser, wallets, cipher, _i, wallets_1, w, encrypted;
+            var _a, email, krFileId, isNewUser, cipher, wallets, _i, wallets_1, w;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -190,24 +201,22 @@ var Me3 = (function () {
                     case 3: return [2, _b.sent()];
                     case 4:
                         console.log("New User, Create wallets for ".concat(email, "!"));
-                        return [4, this._createWallets()];
+                        cipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
+                        return [4, this._createWallets().then(function (wallets) { return lodash_1["default"].map(wallets, function (w) { return ({
+                                chainName: w.chainName,
+                                walletName: w.walletName,
+                                walletAddress: w.walletAddress,
+                                secret: cipher(w.secretRaw)
+                            }); }); })];
                     case 5:
                         wallets = _b.sent();
-                        cipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
                         _i = 0, wallets_1 = wallets;
                         _b.label = 6;
                     case 6:
                         if (!(_i < wallets_1.length)) return [3, 9];
                         w = wallets_1[_i];
-                        encrypted = this.encryptData({
-                            chainName: w.chainName,
-                            walletName: w.walletName,
-                            walletAddress: w.walletAddress,
-                            secret: cipher(w.secretRaw),
-                            needFocus: true
-                        });
                         return [4, Promise.all([
-                                this._client.post('/api/light/addWallet', encrypted),
+                                this._client.post('/api/light/addWallet', this.encryptData(__assign(__assign({}, w), { needFocus: true }))),
                                 this._client.post('/api/mainChain/ping', null, {
                                     params: {
                                         chainName: w.chainName,

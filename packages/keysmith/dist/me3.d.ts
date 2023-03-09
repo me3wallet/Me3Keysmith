@@ -12,7 +12,12 @@ export default class Me3 {
     isInitialized(): boolean;
     getAuthLink(redirectURL: string): Promise<string>;
     getAuthToken(code: string, state: string, sessionState: string): Promise<boolean>;
-    getWallets(): Promise<any[]>;
+    getWallets(): Promise<{
+        chainName: any;
+        walletName: any;
+        walletAddress: any;
+        secret: any;
+    }[]>;
     encryptData(data: any, withAES?: boolean): CommData;
     decryptData(data: CommData, withAES?: boolean): any;
     signTx(wallet: Me3Wallet, txRequest: any): Promise<string>;
