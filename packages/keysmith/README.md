@@ -47,7 +47,9 @@ Once completed, the web page would be redirected to `redirect_uris` at step 1, a
 **2.2 Please pass the full redirected url (with parameters) to this method**
 
 ```ts
-const isSuccess = await me3.getGToken('<full redirect url, including parameters>');
+const isSuccess = await me3.getGToken(
+  "<full redirect url, including parameters>"
+);
 ```
 
 You can check the success or failure of obtaining the GToken from the return value

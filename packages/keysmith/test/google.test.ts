@@ -17,9 +17,9 @@ describe.skip('Google OAuth Client Object testing', () => {
 
   before(() => {
     gClient = new Google(
-        CONFIG.client_id,
-        CONFIG.client_secret,
-        CONFIG.redirect_uris
+      CONFIG.client_id,
+      CONFIG.client_secret,
+      CONFIG.redirect_uris
     )
   })
 

@@ -54,7 +54,7 @@ describe('Me3 class unit test::signTx()', () => {
     // mock Me3._getChainList() response
     mockAxios = new MockAdapter(axios)
     mockAxios.onGet('/api/mainChain/list')
-        .reply(200, mockGetChainListResponse)
+      .reply(200, mockGetChainListResponse)
     me3Ins = new Me3(workableConfig)
   })
 
@@ -65,7 +65,7 @@ describe('Me3 class unit test::signTx()', () => {
 
   it('should throw when chainName of the provided wallet does not exist in /api/mainChain/list', async () => {
     await expect(
-        me3Ins.signTx(
+      me3Ins.signTx(
         {
           chainName: 'doge',
           walletName: 'ethereum-1',
@@ -79,28 +79,28 @@ describe('Me3 class unit test::signTx()', () => {
   it('should throw when chainName of the provided wallet exists in /api/mainChain/list but signing is not implemented yet', async () => {
     // these are dummy data from /fixtures directory
     await expect(
-        me3Ins.signTx(
-            {
-              chainName: 'ltc',
-              walletName: 'litecoin-1',
-              walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
-              secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
-            },
-            tx)
+      me3Ins.signTx(
+        {
+          chainName: 'ltc',
+          walletName: 'litecoin-1',
+          walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+          secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
+        },
+        tx)
     ).to.eventually.be.rejectedWith('Not implemented yet')
   })
 
   it('should throw when chainName of the provided wallet exists in /api/mainChain/list but signing is not supported', async () => {
     // these are dummy data from /fixtures directory
     await expect(
-        me3Ins.signTx(
-            {
-              chainName: 'moon',
-              walletName: 'mooncoin-1',
-              walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
-              secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
-            },
-            tx)
+      me3Ins.signTx(
+        {
+          chainName: 'moon',
+          walletName: 'mooncoin-1',
+          walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+          secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
+        },
+        tx)
     ).to.eventually.be.rejectedWith('Unsupported series')
   })
 

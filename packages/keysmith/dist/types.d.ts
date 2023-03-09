@@ -5,13 +5,20 @@ declare const DriveName: {
 interface ME3Config {
     endpoint: string;
     partnerId: string;
-    client_id: string;
-    client_secret: string;
-    redirect_uris: [string];
+    redirect_url: string;
 }
 interface RsaKey {
     privateKey: string;
     publicKey: string;
+}
+interface Tokens {
+    kc_access: string;
+    kc_refresh: string;
+    google_access: string;
+    rsaPubKey: string;
+    uid?: string;
+    password?: string;
+    salt?: string;
 }
 interface CommSecret {
     aesPwd?: string;
@@ -33,4 +40,4 @@ interface WalletRaw {
     walletAddress: string;
     secretRaw: string;
 }
-export { DriveName, ME3Config, RsaKey, CommSecret, CommData, Me3Wallet, WalletRaw };
+export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet, WalletRaw };
