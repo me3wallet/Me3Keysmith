@@ -35,7 +35,9 @@ export default class Me3 {
       'Partner-ID': credential.partnerId,
     }
     const _this: Me3 = this
-    this._client.interceptors.request.use( (config) => {
+    this._client.interceptors.request.use(function (
+      config: AxiosRequestConfig,
+    ) {
       config.headers = _.chain(companyHeader)
         .set('Light-token', _this._apiToken)
         .pickBy(_.identity)
