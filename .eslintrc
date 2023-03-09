@@ -10,6 +10,7 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
+    "indent": ["error", 2],
     "quotes": [
       "warn",
       "single"

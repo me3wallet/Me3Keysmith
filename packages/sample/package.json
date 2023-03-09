@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "restricted"
   },
-  "version": "2.1.0-alpha.0",
+  "version": "2.1.0",
   "description": "",
   "main": "app.ts",
   "scripts": {
@@ -14,7 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@me3technology/keysmith": "^1.1.0-alpha.0",
+    "@me3technology/keysmith": "^1.1.0",
+    "ethers": "^6.0.8",
     "express": "^4.18.1"
   },
   "devDependencies": {

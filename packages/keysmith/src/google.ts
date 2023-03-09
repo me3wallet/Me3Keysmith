@@ -1,65 +1,18 @@
-import _ from 'lodash'
-import url from 'url'
 import { Readable } from 'stream'
 import { google } from 'googleapis'
 
-const SCOPES = [
-  'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/drive',
-  'https://www.googleapis.com/auth/drive.file',
-]
-
 export default class Google {
-  private readonly _auth
   private readonly _drive
-  private readonly _redirectUrl: string
 
-  constructor(clientId: string, clientSecret: string, redirectUrls: [string]) {
-    this._redirectUrl = redirectUrls[0]
-    this._auth = new google.auth.OAuth2(
-      clientId,
-      clientSecret,
-      this._redirectUrl
-    )
-
-    google.options({ auth: this._auth })
-    this._drive = google.drive({ version: 'v3' })
-  }
-
-  generateAuthUrl() {
-    return this._auth.generateAuthUrl({
-      access_type: 'offline',
-      scope: SCOPES,
+  constructor(accessToken: string) {
+    const auth = new google.auth.OAuth2()
+    auth.setCredentials({
+      access_token: accessToken,
     })
+    this._drive = google.drive({ auth, version: 'v3' })
   }
 
-  async getTokens(redirectUrl: string) {
-    let code: string = redirectUrl
-    if (
-      _.startsWith(redirectUrl, 'https://') ||
-      _.startsWith(redirectUrl, 'http://')
-    ) {
-      if (!_.startsWith(redirectUrl, this._redirectUrl)) return false
-
-      const { query } = url.parse(redirectUrl, true)
-      code = _.get(query, 'code') as string
-    }
-    if (_.isEmpty(code)) return false
-
-    const { tokens } = await this._auth.getToken(code)
-    console.log('time now> ', new Date().toISOString())
-    tokens!.expiry_date && console.log('token_expiry >', new Date(tokens.expiry_date).toISOString())
-    this._auth.setCredentials(tokens)
-    return true
-  }
-
-  async getUserEmail() {
-    const googleAuth = google.oauth2({ version: 'v2' })
-    const { data } = await googleAuth.userinfo.get()
-    return data.email
-  }
-
-  async saveFiles(body: any, fileName: string, mimeType: string) {
+  async saveFile(body: any, fileName: string, mimeType: string) {
     const file = await this._drive.files.create({
       requestBody: {
         name: fileName,
