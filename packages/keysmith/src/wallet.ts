@@ -6,8 +6,9 @@ import {
   sr25519PairFromSeed,
 } from '@polkadot/util-crypto'
 import { u8aToHex } from '@polkadot/util'
-import { FilecoinSigner } from '@blitslabs/filecoin-js-signer'
 import { ethers } from 'ethers'
+
+import { createWalletFilecoin } from './wallet/create-wallet/create-wallet-filecoin'
 
 export default async function createWallet(series: string, mnemonic: string) {
   switch (series) {
@@ -35,16 +36,7 @@ export default async function createWallet(series: string, mnemonic: string) {
     }
   }
   case 'fil': {
-    const signer = new FilecoinSigner()
-    const key = await signer.wallet.keyDerive(
-      mnemonic,
-      'm/44\'/461\'/0\'/0/0',
-      'mainnet'
-    )
-    return {
-      walletAddress: key.address,
-      secretRaw: key.privateKey,
-    }
+    return createWalletFilecoin(mnemonic)
   }
   default:
     break

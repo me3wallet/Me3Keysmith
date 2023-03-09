@@ -30,9 +30,7 @@ export default class Me3 {
       'Partner-ID': credential.partnerId,
     }
     const _this: Me3 = this
-    this._client.interceptors.request.use(function (
-      config: AxiosRequestConfig,
-    ) {
+    this._client.interceptors.request.use( (config) => {
       let chain = _.chain(companyHeader).pickBy(_.identity)
       if (!_.isEmpty(_this._apiToken?.kc_access)) {
         chain = chain.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
@@ -120,29 +118,30 @@ export default class Me3 {
       throw Error('Error! Operation failed.Please contact me3 team!')
     }
 
-    const { email, krFileId } = await this._getUserProfile()
-    const isNewUser = await this._loadBackupFile(krFileId)
+    const isNewUser = await this._loadBackupFile(data)
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`)
       return await this._loadWallets()
     }
 
     console.log(`New User, Create wallets for ${email}!`)
-    const wallets = await this._createWallets()
     const [cipher] = v2.getWalletCiphers(this._userSecret)
 
-
-    for (const w of wallets) {
-      const encrypted = this.encryptData({
+    const wallets = await this._createWallets().then(
+      wallets => _.map(wallets, w => ({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
+        // TODO: We will provide encrypted private key, as partner wants tx sign on our module
         secret: cipher(w.secretRaw),
-        needFocus: true,
-      })
-
+      })),
+    )
+    for (const w of wallets) {
       await Promise.all([
-        this._client.post('/api/light/addWallet', encrypted),
+        this._client.post(
+          '/api/light/addWallet',
+          this.encryptData({ ...w, needFocus: true }),
+        ),
         this._client.post('/api/mainChain/ping', null, {
           params: {
             chainName: w.chainName,
