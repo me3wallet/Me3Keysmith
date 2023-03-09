@@ -80,11 +80,10 @@ var axios_1 = __importDefault(require("axios"));
 var types_1 = require("./types");
 var wallet_1 = __importDefault(require("./wallet"));
 var google_1 = __importDefault(require("./google"));
-var safe_1 = require("./safe");
+var safeV2_1 = require("./safeV2");
 var transaction_1 = require("./transaction");
 var Me3 = (function () {
     function Me3(credential) {
-        this._gClient = new google_1["default"](credential.client_id, credential.client_secret, credential.redirect_uris);
         this._client = axios_1["default"].create({
             baseURL: credential.endpoint
         });
@@ -94,11 +93,12 @@ var Me3 = (function () {
         };
         var _this = this;
         this._client.interceptors.request.use(function (config) {
-            config.headers = lodash_1["default"].chain(companyHeader)
-                .set('Light-token', _this._apiToken)
-                .pickBy(lodash_1["default"].identity)
-                .merge(config.headers)
-                .value();
+            var _a;
+            var chain = lodash_1["default"].chain(companyHeader).pickBy(lodash_1["default"].identity);
+            if (!lodash_1["default"].isEmpty((_a = _this._apiToken) === null || _a === void 0 ? void 0 : _a.kc_access)) {
+                chain = chain.set('Authorization', "Bearer ".concat(_this._apiToken.kc_access));
+            }
+            config.headers = chain.merge(config.headers).value();
             return config;
         });
         this._client.interceptors.response.use(function (resp) {
@@ -109,6 +109,15 @@ var Me3 = (function () {
             }
             resp.data = data;
             return resp;
+        }, function (err) {
+            var status = err.response ? err.response.status : null;
+            if (status === 401) {
+                return _this._refreshToken().then(function (_) {
+                    err.config.headers['Authorization'] = "Bearer ".concat(_this._apiToken.kc_access);
+                    return _this._client.request(err.config);
+                });
+            }
+            return Promise.reject(err);
         });
     }
     Me3.prototype.me3ApiClient = function () {
@@ -129,61 +138,82 @@ var Me3 = (function () {
         }
         return true;
     };
-    Me3.prototype.getGAuthUrl = function () {
-        return this._gClient.generateAuthUrl();
-    };
-    Me3.prototype.getGToken = function (redirectUrl) {
+    Me3.prototype.getAuthLink = function (redirectURL) {
         return __awaiter(this, void 0, void 0, function () {
+            var _a, privateKey, publicKey, data;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = safeV2_1.rsa.genKeyPair(), privateKey = _a.privateKey, publicKey = _a.publicKey;
+                        this._myPriRsa = privateKey;
+                        return [4, this._client.get('/kc/auth/link', {
+                                params: {
+                                    redirectURL: redirectURL,
+                                    pubKey: publicKey
+                                }
+                            })];
+                    case 1:
+                        data = (_b.sent()).data;
+                        return [2, data];
+                }
+            });
+        });
+    };
+    Me3.prototype.getAuthToken = function (code, state, sessionState) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4, this._gClient.getTokens(redirectUrl)];
-                    case 1: return [2, _a.sent()];
+                    case 0: return [4, this._client.get('/kc/auth/code', {
+                            params: {
+                                code: code,
+                                state: state,
+                                session_state: sessionState
+                            }
+                        })];
+                    case 1:
+                        data = (_a.sent()).data;
+                        this._apiToken = data;
+                        this._gClient = new google_1["default"](this._apiToken.google_access);
+                        return [2, true];
                 }
             });
         });
     };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var email, data, isNewUser, cipher, wallets, _i, wallets_1, w;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, this._gClient.getUserEmail()];
-                    case 1:
-                        email = _a.sent();
-                        return [4, this._exchangeKey(email)];
-                    case 2:
-                        _a.sent();
-                        return [4, this._client.post('/api/light/register', null, {
-                                params: { faceId: email }
-                            })];
-                    case 3:
-                        data = (_a.sent()).data;
-                        this._apiToken = lodash_1["default"].get(data, 'token', '');
+            var _a, email, krFileId, isNewUser, cipher, wallets, _i, wallets_1, w;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
                         if (lodash_1["default"].isEmpty(this._apiToken)) {
                             throw Error('Error! Operation failed.Please contact me3 team!');
                         }
-                        return [4, this._loadBackupFile(data)];
-                    case 4:
-                        isNewUser = _a.sent();
-                        if (!!isNewUser) return [3, 6];
+                        return [4, this._getUserProfile()];
+                    case 1:
+                        _a = _b.sent(), email = _a.email, krFileId = _a.krFileId;
+                        return [4, this._loadBackupFile(krFileId)];
+                    case 2:
+                        isNewUser = _b.sent();
+                        if (!!isNewUser) return [3, 4];
                         console.log("Already exist, Restore wallets for ".concat(email, "!"));
                         return [4, this._loadWallets()];
-                    case 5: return [2, _a.sent()];
-                    case 6:
+                    case 3: return [2, _b.sent()];
+                    case 4:
                         console.log("New User, Create wallets for ".concat(email, "!"));
-                        cipher = safe_1.v2.getWalletCiphers(this._userSecret)[0];
+                        cipher = safeV2_1.v2.getWalletCiphers(this._userSecret)[0];
                         return [4, this._createWallets().then(function (wallets) { return lodash_1["default"].map(wallets, function (w) { return ({
                                 chainName: w.chainName,
                                 walletName: w.walletName,
                                 walletAddress: w.walletAddress,
                                 secret: cipher(w.secretRaw)
                             }); }); })];
-                    case 7:
-                        wallets = _a.sent();
+                    case 5:
+                        wallets = _b.sent();
                         _i = 0, wallets_1 = wallets;
-                        _a.label = 8;
-                    case 8:
-                        if (!(_i < wallets_1.length)) return [3, 11];
+                        _b.label = 6;
+                    case 6:
+                        if (!(_i < wallets_1.length)) return [3, 9];
                         w = wallets_1[_i];
                         return [4, Promise.all([
                                 this._client.post('/api/light/addWallet', this.encryptData(__assign(__assign({}, w), { needFocus: true }))),
@@ -194,13 +224,13 @@ var Me3 = (function () {
                                     }
                                 }),
                             ])];
-                    case 9:
-                        _a.sent();
-                        _a.label = 10;
-                    case 10:
+                    case 7:
+                        _b.sent();
+                        _b.label = 8;
+                    case 8:
                         _i++;
-                        return [3, 8];
-                    case 11: return [2, wallets];
+                        return [3, 6];
+                    case 9: return [2, wallets];
                 }
             });
         });
@@ -208,18 +238,18 @@ var Me3 = (function () {
     Me3.prototype.encryptData = function (data, withAES) {
         if (withAES === void 0) { withAES = false; }
         var secure = {
-            rsaKey: this._serverPubRsa,
+            rsaKey: this._apiToken.rsaPubKey,
             isPubKey: true
         };
         if (withAES === true && !lodash_1["default"].isEmpty(this._userSecret)) {
             var _a = this._userSecret, password = _a.password, key = _a.key, salt = _a.salt;
-            var decryptedKey = safe_1.aes.decrypt(key, password, salt);
+            var decryptedKey = safeV2_1.aes.decrypt(key, password, salt);
             lodash_1["default"].merge(secure, {
                 aesKey: decryptedKey,
                 aesSalt: salt
             });
         }
-        return safe_1.v2.encrypt(JSON.stringify(data), secure);
+        return safeV2_1.v2.encrypt(JSON.stringify(data), secure);
     };
     Me3.prototype.decryptData = function (data, withAES) {
         if (withAES === void 0) { withAES = false; }
@@ -229,31 +259,14 @@ var Me3 = (function () {
         };
         if (withAES === true && !lodash_1["default"].isEmpty(this._userSecret)) {
             var _a = this._userSecret, password = _a.password, key = _a.key, salt = _a.salt;
-            var decryptedKey = safe_1.aes.decrypt(key, password, salt);
+            var decryptedKey = safeV2_1.aes.decrypt(key, password, salt);
             lodash_1["default"].merge(secure, {
                 aesKey: decryptedKey,
                 aesSalt: salt
             });
         }
-        var decrypted = safe_1.v2.decrypt(data, secure);
+        var decrypted = safeV2_1.v2.decrypt(data, secure);
         return JSON.parse(decrypted);
-    };
-    Me3.prototype.signTransaction = function (series, walletSecret, transactionRequest) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, decipher;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
-                        return [4, (0, transaction_1.signTransaction)({
-                                series: series,
-                                privateKey: decipher(walletSecret),
-                                transactionRequest: transactionRequest
-                            })];
-                    case 1: return [2, _b.sent()];
-                }
-            });
-        });
     };
     Me3.prototype.signTx = function (wallet, txRequest) {
         return __awaiter(this, void 0, void 0, function () {
@@ -270,7 +283,7 @@ var Me3 = (function () {
                         if (lodash_1["default"].isEmpty(chainFound)) {
                             throw Error('Chain not supported');
                         }
-                        _a = safe_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
+                        _a = safeV2_1.v2.getWalletCiphers(this._userSecret), decipher = _a[1];
                         return [4, (0, transaction_1.signTransaction)({
                                 series: chainFound.series,
                                 privateKey: decipher(wallet.secret),
@@ -352,75 +365,90 @@ var Me3 = (function () {
                     case 0: return [4, this._client.get('/api/light/secretList')];
                     case 1:
                         data = (_a.sent()).data;
-                        return [2, data];
+                        return [2, lodash_1["default"].map(data, function (w) { return ({
+                                chainName: w.chainName,
+                                walletName: w.walletName,
+                                walletAddress: w.walletAddress,
+                                secret: w.secret
+                            }); })];
                 }
             });
         });
     };
-    Me3.prototype._loadBackupFile = function (userDetail) {
+    Me3.prototype._loadBackupFile = function (krFileId) {
         return __awaiter(this, void 0, void 0, function () {
-            var fetchOrUpdateGFileId, uid, password, salt, fileId, _a, randStr, key, secret, jsonStr, jsonId;
+            var updateGFileId, _a, _b, uid, password, salt, randStr, key, secret, jsonStr, jsonId;
             var _this_1 = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        fetchOrUpdateGFileId = function (fileId) { return __awaiter(_this_1, void 0, void 0, function () {
+                        updateGFileId = function (fileId) { return __awaiter(_this_1, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 return [2, this._client.post('/api/light/userfileId', null, {
                                         params: { fileId: fileId }
                                     }).then(function (resp) { return lodash_1["default"].get(resp, 'data.fileId'); })];
                             });
                         }); };
-                        uid = userDetail.uid, password = userDetail.password, salt = userDetail.salt;
-                        if (!(lodash_1["default"].isNil(uid) || lodash_1["default"].isNil(password) || lodash_1["default"].isNil(salt))) return [3, 3];
-                        return [4, fetchOrUpdateGFileId('')];
-                    case 1:
-                        fileId = _b.sent();
-                        if (!!lodash_1["default"].isEmpty(fileId)) return [3, 3];
+                        if (!!lodash_1["default"].isEmpty(krFileId)) return [3, 2];
                         _a = this;
-                        return [4, this._gClient.loadFile(fileId)];
-                    case 2:
-                        _a._userSecret = _b.sent();
+                        return [4, this._gClient.loadFile(krFileId)];
+                    case 1:
+                        _a._userSecret = _c.sent();
                         return [2, false];
-                    case 3:
+                    case 2:
+                        _b = this._apiToken, uid = _b.uid, password = _b.password, salt = _b.salt;
+                        if (lodash_1["default"].isNil(uid) || lodash_1["default"].isNil(password) || lodash_1["default"].isNil(salt)) {
+                            throw Error('No KR info!');
+                        }
                         randStr = randomstring_1["default"].generate({
                             charset: 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
                             length: 40
                         });
-                        key = safe_1.aes.encrypt("".concat(randStr).concat(new Date().getTime()), password, salt);
+                        key = safeV2_1.aes.encrypt("".concat(randStr).concat(new Date().getTime()), password, salt);
                         secret = lodash_1["default"].pickBy({ uid: uid, password: password, salt: salt, key: key }, lodash_1["default"].identity);
                         jsonStr = JSON.stringify(secret);
                         return [4, Promise.all([
-                                this._gClient.saveFiles(this._gClient.str2Readable(jsonStr), types_1.DriveName.json, 'application/json'),
+                                this._gClient.saveFile(this._gClient.str2Readable(jsonStr), types_1.DriveName.json, 'application/json'),
                             ])];
+                    case 3:
+                        jsonId = (_c.sent())[0];
+                        return [4, updateGFileId(jsonId)];
                     case 4:
-                        jsonId = (_b.sent())[0];
-                        return [4, fetchOrUpdateGFileId(jsonId)];
-                    case 5:
-                        _b.sent();
+                        _c.sent();
                         this._userSecret = secret;
                         return [2, true];
                 }
             });
         });
     };
-    Me3.prototype._exchangeKey = function (email) {
+    Me3.prototype._refreshToken = function () {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var _a, privateKey, publicKey, data;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4, safe_1.rsa.genKeyPair()];
+            var data;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (lodash_1["default"].isEmpty((_a = this._apiToken) === null || _a === void 0 ? void 0 : _a.kc_refresh)) {
+                            return [2, false];
+                        }
+                        return [4, axios_1["default"].post("".concat(this._client.defaults.baseURL, "/kc/auth/refresh"), { refresh: (_b = this._apiToken) === null || _b === void 0 ? void 0 : _b.kc_refresh })];
                     case 1:
-                        _a = _b.sent(), privateKey = _a.privateKey, publicKey = _a.publicKey;
-                        return [4, this._client.post('/api/light/exchange/key', {
-                                email: email,
-                                publicKey: publicKey
-                            })];
-                    case 2:
-                        data = (_b.sent()).data;
-                        this._myPriRsa = privateKey;
-                        this._serverPubRsa = data;
-                        return [2];
+                        data = (_c.sent()).data;
+                        this._apiToken = this.decryptData(data.data, false);
+                        return [2, true];
+                }
+            });
+        });
+    };
+    Me3.prototype._getUserProfile = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._client.get('/kc/api/userInfo')];
+                    case 1:
+                        data = (_a.sent()).data;
+                        return [2, data];
                 }
             });
         });
