@@ -39,13 +39,15 @@ exports.__esModule = true;
 var util_crypto_1 = require("@polkadot/util-crypto");
 var util_1 = require("@polkadot/util");
 var ethers_1 = require("ethers");
-var create_wallet_filecoin_1 = require("./wallet/create-wallet/create-wallet-filecoin");
-function createWallet(series, mnemonic) {
+var filecoin_1 = require("./wallet/create-wallet/filecoin");
+var bitcoin_1 = require("./wallet/create-wallet/bitcoin");
+function createWallet(companyChain, mnemonic) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, wallet, mini, _b, publicKey, secretKey;
+        var series, chains, _a, mini, _b, publicKey, secretKey, walletAddress_1, secretRaw_1;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
+                    series = companyChain[0], chains = companyChain[1];
                     _a = series;
                     switch (_a) {
                         case 'btc': return [3, 1];
@@ -54,16 +56,21 @@ function createWallet(series, mnemonic) {
                         case 'eth': return [3, 2];
                         case 'dot': return [3, 3];
                         case 'fil': return [3, 6];
+                        case 'filtest': return [3, 6];
                     }
                     return [3, 7];
-                case 1: return [2, _createBtcWallet(series, mnemonic)];
+                case 1: return [2, (0, bitcoin_1.createBtcWallet)(series, mnemonic)];
                 case 2:
                     {
-                        wallet = ethers_1.ethers.Wallet.fromMnemonic(mnemonic);
-                        return [2, {
-                                walletAddress: wallet.address,
-                                secretRaw: wallet.privateKey
-                            }];
+                        return [2, chains.map(function (c) {
+                                var wallet = ethers_1.ethers.Wallet.fromMnemonic(mnemonic, c.path);
+                                return {
+                                    walletAddress: wallet.address,
+                                    secretRaw: wallet.privateKey,
+                                    chainName: c.name,
+                                    walletName: c.walletName
+                                };
+                            })];
                     }
                     _c.label = 3;
                 case 3:
@@ -75,13 +82,19 @@ function createWallet(series, mnemonic) {
                 case 5:
                     mini = (0, util_crypto_1.mnemonicToMiniSecret)(mnemonic);
                     _b = (0, util_crypto_1.sr25519PairFromSeed)(mini), publicKey = _b.publicKey, secretKey = _b.secretKey;
-                    return [2, {
-                            walletAddress: (0, util_crypto_1.encodeAddress)(publicKey),
-                            secretRaw: (0, util_1.u8aToHex)(secretKey)
-                        }];
+                    walletAddress_1 = (0, util_crypto_1.encodeAddress)(publicKey);
+                    secretRaw_1 = (0, util_1.u8aToHex)(secretKey);
+                    return [2, chains.map(function (c) {
+                            return {
+                                walletAddress: walletAddress_1,
+                                secretRaw: secretRaw_1,
+                                chainName: c.name,
+                                walletName: c.walletName
+                            };
+                        })];
                 case 6:
                     {
-                        return [2, (0, create_wallet_filecoin_1.createWalletFilecoin)(mnemonic)];
+                        return [2, (0, filecoin_1.createFileCoinWallet)(chains, mnemonic)];
                     }
                     _c.label = 7;
                 case 7: return [3, 8];
@@ -91,28 +104,4 @@ function createWallet(series, mnemonic) {
     });
 }
 exports["default"] = createWallet;
-function _createBtcWallet(series, mnemonic) {
-    var generator;
-    switch (series) {
-        case 'btc':
-            generator = require('bitcore-lib');
-            break;
-        case 'ltc':
-            generator = require('bitcore-lib-ltc');
-            break;
-        case 'bch':
-            generator = require('bitcore-lib-cash');
-            break;
-        default:
-            return undefined;
-    }
-    var value = Buffer.from(mnemonic, 'utf8');
-    var hash = generator.crypto.Hash.sha256(value);
-    var bn = generator.crypto.BN.fromBuffer(hash);
-    var privateKey = new generator.PrivateKey(bn);
-    return {
-        walletAddress: privateKey.toAddress().toString(),
-        secretRaw: privateKey.toString()
-    };
-}
 //# sourceMappingURL=wallet.js.map

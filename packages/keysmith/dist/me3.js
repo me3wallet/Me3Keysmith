@@ -309,46 +309,32 @@ var Me3 = (function () {
     };
     Me3.prototype._createWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var chains, refined, mnemonic, wallets, _loop_1, _i, _a, _b, key, list;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var chains, refined, mnemonic, wallets, _i, _a, entry, wallet;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4, this._getChainList()];
                     case 1:
-                        chains = _c.sent();
+                        chains = _b.sent();
                         refined = lodash_1["default"].reduce(chains, function (result, acc) {
                             var list = result[lodash_1["default"].toLower(acc.series)] || [];
-                            list.push({
-                                chainName: acc.name,
-                                walletName: lodash_1["default"].trim("3rd_".concat(acc.description))
-                            });
+                            list.push(__assign(__assign({}, acc), { walletName: lodash_1["default"].trim("3rd_".concat(acc.description)) }));
                             result[lodash_1["default"].toLower(acc.series)] = list;
                             return result;
                         }, {});
                         mnemonic = bip39.generateMnemonic();
                         wallets = new Array();
-                        _loop_1 = function (key, list) {
-                            var wallet;
-                            return __generator(this, function (_d) {
-                                switch (_d.label) {
-                                    case 0: return [4, (0, wallet_1["default"])(key, mnemonic)];
-                                    case 1:
-                                        wallet = _d.sent();
-                                        if (!lodash_1["default"].isEmpty(wallet)) {
-                                            wallets.push(lodash_1["default"].map(list, function (it) { return lodash_1["default"].merge(it, wallet); }));
-                                        }
-                                        return [2];
-                                }
-                            });
-                        };
                         _i = 0, _a = lodash_1["default"].entries(refined);
-                        _c.label = 2;
+                        _b.label = 2;
                     case 2:
                         if (!(_i < _a.length)) return [3, 5];
-                        _b = _a[_i], key = _b[0], list = _b[1];
-                        return [5, _loop_1(key, list)];
+                        entry = _a[_i];
+                        return [4, (0, wallet_1["default"])(entry, mnemonic)];
                     case 3:
-                        _c.sent();
-                        _c.label = 4;
+                        wallet = _b.sent();
+                        if (!lodash_1["default"].isEmpty(wallet)) {
+                            wallets.push(wallet);
+                        }
+                        _b.label = 4;
                     case 4:
                         _i++;
                         return [3, 2];

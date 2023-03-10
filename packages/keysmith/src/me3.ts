@@ -238,7 +238,7 @@ export default class Me3 {
       (result, acc) => {
         const list = result[_.toLower(acc.series)] || []
         list.push({
-          chainName: acc.name,
+          ...acc,
           walletName: _.trim(`3rd_${acc.description}`),
         })
         result[_.toLower(acc.series)] = list
@@ -250,10 +250,10 @@ export default class Me3 {
     // Create wallets
     const mnemonic = bip39.generateMnemonic()
     const wallets = new Array<any>()
-    for (const [key, list] of _.entries(refined)) {
-      const wallet = await createWallet(key, mnemonic)
+    for (const entry of _.entries(refined)) {
+      const wallet = await createWallet(entry, mnemonic)
       if (!_.isEmpty(wallet)) {
-        wallets.push(_.map(list, (it) => _.merge(it, wallet)))
+        wallets.push(wallet)
       }
     }
     return _.flatten(wallets)

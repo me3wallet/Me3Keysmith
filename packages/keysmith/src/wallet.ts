@@ -8,21 +8,27 @@ import {
 import { u8aToHex } from '@polkadot/util'
 import { ethers } from 'ethers'
 
-import { createWalletFilecoin } from './wallet/create-wallet/create-wallet-filecoin'
+import { createFileCoinWallet } from './wallet/create-wallet/filecoin'
+import { createBtcWallet } from './wallet/create-wallet/bitcoin'
 
-export default async function createWallet(series: string, mnemonic: string) {
+export default async function createWallet(companyChain, mnemonic: string) {
+  const [series, chains] = companyChain
   switch (series) {
   case 'btc':
   case 'ltc':
   case 'bch':
-    return _createBtcWallet(series, mnemonic)
+    return createBtcWallet(series, mnemonic)
 
   case 'eth': {
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic)
-    return {
-      walletAddress: wallet.address,
-      secretRaw: wallet.privateKey,
-    }
+    return chains.map(c => {
+      const wallet = ethers.Wallet.fromMnemonic(mnemonic, c.path)
+      return {
+        walletAddress: wallet.address,
+        secretRaw: wallet.privateKey,
+        chainName: c.name,
+        walletName: c.walletName,
+      }
+    })
   }
   case 'dot': {
     if (!cryptoIsReady()) {
@@ -30,13 +36,21 @@ export default async function createWallet(series: string, mnemonic: string) {
     }
     const mini = mnemonicToMiniSecret(mnemonic)
     const { publicKey, secretKey } = sr25519PairFromSeed(mini)
-    return {
-      walletAddress: encodeAddress(publicKey),
-      secretRaw: u8aToHex(secretKey),
-    }
+    const walletAddress = encodeAddress(publicKey)
+    const secretRaw = u8aToHex(secretKey)
+
+    return chains.map(c => {
+      return {
+        walletAddress,
+        secretRaw,
+        chainName: c.name,
+        walletName: c.walletName,
+      }
+    })
   }
-  case 'fil': {
-    return createWalletFilecoin(mnemonic)
+  case 'fil':
+  case 'filtest': {
+    return createFileCoinWallet(chains, mnemonic)
   }
   default:
     break
@@ -44,28 +58,3 @@ export default async function createWallet(series: string, mnemonic: string) {
   return undefined
 }
 
-function _createBtcWallet(series: string, mnemonic: string) {
-  let generator: any
-  switch (series) {
-  case 'btc':
-    generator = require('bitcore-lib')
-    break
-  case 'ltc':
-    generator = require('bitcore-lib-ltc')
-    break
-  case 'bch':
-    generator = require('bitcore-lib-cash')
-    break
-  default:
-    return undefined
-  }
-
-  const value = Buffer.from(mnemonic, 'utf8')
-  const hash = generator.crypto.Hash.sha256(value)
-  const bn = generator.crypto.BN.fromBuffer(hash)
-  const privateKey = new generator.PrivateKey(bn)
-  return {
-    walletAddress: privateKey.toAddress().toString(),
-    secretRaw: privateKey.toString(),
-  }
-}
