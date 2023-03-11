@@ -251,9 +251,9 @@ export default class Me3 {
     const mnemonic = bip39.generateMnemonic()
     const wallets = new Array<any>()
     for (const entry of _.entries(refined)) {
-      const wallet = await createWallet(entry, mnemonic)
-      if (!_.isEmpty(wallet)) {
-        wallets.push(wallet)
+      const _wallets = await createWallet(entry, mnemonic)
+      if (!_.isEmpty(_wallets)) {
+        wallets.push(_wallets)
       }
     }
     return _.flatten(wallets)
