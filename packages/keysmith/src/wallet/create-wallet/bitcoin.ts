@@ -22,7 +22,7 @@ export const createBtcWallet = (chains: [any], mnemonic: string) => _.chain(chai
   .value()
 
 const getGenerator = (series: string) => {
-  switch (series) {
+  switch (_.toLower(series)) {
   case 'btc':
     return require('bitcore-lib')
   case 'ltc':

@@ -1,10 +1,12 @@
+
+import _ from 'lodash'
 import * as signer from '@zondax/filecoin-signing-tools'
 
 export const createFileCoinWallet = (chains: [any], mnemonic: string) => chains.map(c => {
   const key = signer.keyDerive(
     mnemonic,
     c.path,
-    c.name === 'fil' ? 'mainnet' : 'testnet'
+    _.toLower(c.name) === 'fil' ? 'mainnet' : 'testnet'
   )
 
   return {
