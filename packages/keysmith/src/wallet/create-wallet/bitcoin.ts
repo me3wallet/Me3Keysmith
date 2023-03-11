@@ -28,10 +28,8 @@ const getGenerator = (series: string) => {
     return require('bitcore-lib')
   case 'ltc':
     return require('bitcore-lib-ltc')
-    break
   case 'bch':
     return require('bitcore-lib-cash')
-    break
   default:
     break
   }
