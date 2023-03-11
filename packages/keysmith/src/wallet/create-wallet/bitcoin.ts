@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { getWalletName } from './common'
 
 export const createBtcWallet = (chains: [any], mnemonic: string) => _.chain(chains)
   .map(c => {
@@ -14,7 +15,7 @@ export const createBtcWallet = (chains: [any], mnemonic: string) => _.chain(chai
     return {
       walletAddress: privateKey.toAddress().toString(),
       secretRaw: privateKey.toString(),
-      walletName: c.walletName,
+      walletName: getWalletName(c.description),
       chainName: c.name,
     }
   })

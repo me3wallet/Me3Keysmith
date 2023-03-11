@@ -10,6 +10,7 @@ import { ethers } from 'ethers'
 
 import { createFileCoinWallet } from './wallet/create-wallet/filecoin'
 import { createBtcWallet } from './wallet/create-wallet/bitcoin'
+import { getWalletName } from './wallet/create-wallet/common'
 
 export default async function createWallet(companyChain, mnemonic: string) {
   const [series, chains] = companyChain
@@ -26,7 +27,7 @@ export default async function createWallet(companyChain, mnemonic: string) {
         walletAddress: wallet.address,
         secretRaw: wallet.privateKey,
         chainName: c.name,
-        walletName: c.walletName,
+        walletName: getWalletName(c.description),
       }
     })
   }
@@ -44,7 +45,7 @@ export default async function createWallet(companyChain, mnemonic: string) {
         walletAddress,
         secretRaw,
         chainName: c.name,
-        walletName: c.walletName,
+        walletName: getWalletName(c.description),
       }
     })
   }

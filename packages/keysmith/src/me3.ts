@@ -129,7 +129,7 @@ export default class Me3 {
     const [cipher] = v2.getWalletCiphers(this._userSecret)
 
     const wallets = await this._createWallets().then(
-      wallets => _.map(wallets, w => ({
+      results => _.map(results, w => ({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
@@ -233,18 +233,9 @@ export default class Me3 {
 
   private async _createWallets() {
     const chains = await this._getChainList()
-    const refined: Record<string, [any]> = _.reduce(
+    const refined = _.groupBy(
       chains,
-      (result, acc) => {
-        const list = result[_.toLower(acc.series)] || []
-        list.push({
-          ...acc,
-          walletName: _.trim(`3rd_${acc.description}`),
-        })
-        result[_.toLower(acc.series)] = list
-        return result
-      },
-      {},
+      chain => _.toLower(chain.series),
     )
 
     // Create wallets
