@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import { describe } from 'mocha'
 
 import { createFileCoinWallet } from '../../src/wallet/create-wallet/filecoin'
+import { fileCoinChainData } from '../fixtures/me3-get-chain-list'
 
 chai.use(chaiAsPromised)
 const { expect } = chai
@@ -14,19 +15,15 @@ describe('createWallet - filecoin', () => {
 
     // @zondax/filecoin-signing-tools
     const newLib = createFileCoinWallet([
-      {
-        series: 'fil',
-        name: 'FIL',
-        walletName: 'TestWallet',
-      },
+      fileCoinChainData,
     ], mnemonic)
     console.info('output >', newLib)
 
     expect(newLib).to.deep.equal([{
       chainName: 'FIL',
-      walletName: 'TestWallet',
-      secretRaw: 'QNRGtRs1VdeqlXs8btpxrmEtzKOYybtfTcqqsigfBsA=',
-      walletAddress: 'f1trmstlgfyfpo6ineunloaeygjzpcfvq2dvbqtzi',
+      secretRaw: 'aGTWNLdKHhuM++4NShyZSRMNX5t2dpn1ZrF9DRRWon0=',
+      walletAddress: 'f1trmopbet34d6plho2xufnzhy3u64moj3e24hdvq',
+      walletName: '3rd_Filecoin',
     }])
   })
 })
