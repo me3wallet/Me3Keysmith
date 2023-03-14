@@ -1,6 +1,5 @@
-
 import _ from 'lodash'
-import * as signer from '@zondax/filecoin-signing-tools'
+import signer from '@zondax/filecoin-signing-tools'
 import { getWalletName } from './common'
 
 export const createFileCoinWallet = (chains: [any], mnemonic: string) => chains.map(c => {
