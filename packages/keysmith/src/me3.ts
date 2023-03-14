@@ -71,7 +71,7 @@ export default class Me3 {
   }
 
   /**
-   * Please use before getWallets
+   * Please use before `signTx`
    */
   isInitialized(): boolean {
     if (_.isEmpty(this._apiToken)) {

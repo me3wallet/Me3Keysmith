@@ -59,6 +59,9 @@ app.get('/wallets', async function (req, res) {
 })
 
 app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
+  if (!me3.isInitialized()) {
+    return res.json({ error: 'Oops, ERROR!', msg: 'Me3 still did not initialized!' })
+  }
   if (_.isEmpty(wallets)) {
     return res.json({ error: 'Oops, ERROR!', msg: 'No wallets loaded' })
   }
@@ -74,5 +77,4 @@ app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
   } catch (e) {
     return res.json({ error: 'Oops, ERROR!', msg: e.message })
   }
-}
-)
+})
