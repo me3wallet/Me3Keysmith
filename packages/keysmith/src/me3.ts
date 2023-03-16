@@ -4,7 +4,7 @@ import _ from 'lodash'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { CommData, DriveName, ME3Config, Tokens, Me3Wallet } from './types'
 import createWallet from './wallet'
 import Google from './google'
@@ -101,16 +101,17 @@ export default class Me3 {
     return data
   }
 
-  async getAuthToken(code: string, state: string, sessionState: string): Promise<boolean> {
+  async getAuthToken(code: string, state: string, sessionState: string): Promise<Tokens> {
     const { data } = await this._client.get('/kc/auth/code', {
       params: {
         code, state,
         session_state: sessionState,
       },
     })
-    this._apiToken = data
+    this._apiToken = data as Tokens
     this._gClient = new Google(this._apiToken.google_access)
-    return true
+    // TODO: Return only the tokens without user-related info
+    return this._apiToken
   }
 
   async getWallets() {
@@ -310,7 +311,9 @@ export default class Me3 {
       `${this._client.defaults.baseURL}/kc/auth/refresh`,
       { refresh: this._apiToken?.kc_refresh }
     )
-    this._apiToken = this.decryptData(data.data, false)
+    // type assert here since decrypted response from /kc/auth/refresh
+    // is in the type Tokens
+    this._apiToken = this.decryptData(data.data, false) as Tokens
     return true
   }
 

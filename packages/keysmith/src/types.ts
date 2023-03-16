@@ -17,13 +17,10 @@ interface RsaKey {
 interface Tokens {
   kc_access: string;
   kc_refresh: string;
-
   // Google access token
   google_access: string;
-
   // Server side rsa pub key
   rsaPubKey: string;
-
   // Will be not null only for new users
   uid?: string;
   password?: string;
