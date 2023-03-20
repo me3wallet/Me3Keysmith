@@ -69,6 +69,7 @@
     "bitcore-lib-ltc": "^8.25.38",
     "body-parser": "^1.20.1",
     "ethers": "^5.7.1",
+    "form-data": "^4.0.0",
     "googleapis": "^108.0.0",
     "randomstring": "^1.2.2"
   },
