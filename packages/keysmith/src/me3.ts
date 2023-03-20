@@ -1,22 +1,21 @@
-// import path from 'path'
 import _ from 'lodash'
-// import QRLogo from 'qr-with-logo'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { CommData, DriveName, ME3Config, Tokens, Me3Wallet } from './types'
 import createWallet from './wallet'
-import Google from './google'
 import { aes, rsa, v2 } from './safeV2'
 import { signTransaction } from './transaction'
+import GDriveClient from './gDrive'
 
 export default class Me3 {
-  private _gClient: Google
   private readonly _client: AxiosInstance
 
   private _apiToken?: Tokens
+  // user recovery data
   private _userSecret?: any
+  // private RSA key used ONLY for chacha encrypt/decrypt of a single communication b/w client and server
   private _myPriRsa?: string
   private _serverPubRsa?: string
 
@@ -121,7 +120,6 @@ export default class Me3 {
       },
     })
     this._apiToken = data as Tokens
-    this._gClient = new Google(this._apiToken.google_access)
     // TODO: Return only the tokens without user-related info
     return this._apiToken
   }
@@ -273,16 +271,30 @@ export default class Me3 {
     }))
   }
 
-  private async _loadBackupFile(krFileId?: string) {
+  /**
+   *
+   * @param accessToken: user's google access_token to authorise read/write to GDrive
+   * @param krFileId?: string | undefined/null -> fileId of recovery file if user already has one
+   * @private
+   */
+  private async _loadBackupFile(accessToken: string, krFileId?: string): Promise<boolean> {
     const updateGFileId = async (fileId?: string) =>
       this._client.post('/api/light/userfileId', null, {
         params: { fileId },
       }).then((resp) => _.get(resp, 'data.fileId'))
 
     if (!_.isEmpty(krFileId)) {
-      this._userSecret = await this._gClient.loadFile(krFileId)
+      /**
+       * if krFileId exists, it means user already have a recovery file existing
+       * proceed to perform retrieval and set to _userSecret variable
+       */
+      this._userSecret = await new GDriveClient().loadFile(accessToken, krFileId)
       return false // False for already exist user
     }
+    /**
+     * if krFileId does not exist, it means user does not have recovery file existing
+     * proceed to generate recovery file using apiToken parameters
+     */
     const { uid, password, salt } = this._apiToken
     if (_.isNil(uid) || _.isNil(password) || _.isNil(salt)) {
       throw Error('No KR info!')
@@ -293,24 +305,16 @@ export default class Me3 {
     })
     const key = aes.encrypt(`${randStr}${new Date().getTime()}`, password, salt)
     const secret = _.pickBy({ uid, password, salt, key }, _.identity)
-    const jsonStr = JSON.stringify(secret)
-    // const qrCode = await this._generateQR(jsonStr)
 
-    const [jsonId] = await Promise.all([
-      // this._gClient.saveFile(
-      //   this._gClient.b642Readable(qrCode),
-      //   DriveName.qr,
-      //   'image/png',
-      // ),
-      this._gClient.saveFile(
-        this._gClient.str2Readable(jsonStr),
-        DriveName.json,
-        'application/json',
-      ),
-    ])
+    /**
+     * GDriveClient().saveFile automatically throws Errors when file upload fails
+     * allow clientside to implement their own handlers
+     * TODO: Standardise error interface to be exported and used for clientside error handling
+     */
+    const uploadedFileDetails = await new GDriveClient().saveFile(accessToken, secret, DriveName.json)
+    const jsonId = _.get(uploadedFileDetails, ['id'])
     await updateGFileId(jsonId!)
     this._userSecret = secret
-
     // True for new user
     return true
   }
@@ -329,6 +333,10 @@ export default class Me3 {
     return true
   }
 
+  /**
+   * Get user details from Keycloak
+   * @private
+   */
   private async _getUserProfile() {
     const { data } = await this._client.get('/kc/api/userInfo')
     return data

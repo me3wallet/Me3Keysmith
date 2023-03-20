@@ -51,4 +51,11 @@ interface WalletRaw {
   secretRaw: string;
 }
 
-export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet, WalletRaw }
+interface RecoveryKey {
+  key: string;
+  password: string;
+  salt: string;
+  uid: string;
+}
+
+export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet, WalletRaw, RecoveryKey }

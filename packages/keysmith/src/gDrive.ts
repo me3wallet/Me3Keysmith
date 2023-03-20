@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import axios, { AxiosInstance } from 'axios'
 import FormData from 'form-data'
+import { RecoveryKey } from './types'
 
 export default class GDriveClient {
   private readonly _driveApi: AxiosInstance
@@ -42,13 +43,13 @@ export default class GDriveClient {
         throw new Error('Invalid authentication credentials! Please provide a valid access token!')
       }
       // log and throw unexpected errors
-      // TODO: Improve logging to only return non-sensitive info for debugging
+      // TODO: Improve logging to only log non-sensitive info for debugging
       console.log('error', JSON.stringify(error, null, 2))
       throw new Error('Unexpected error while uploading recovery file to user gDrive! Please contact Me3 and provide the above error log!')
     }
   }
 
-  async loadFile(accessToken: string, fileId: string): Promise<any> {
+  async loadFile(accessToken: string, fileId: string): Promise<RecoveryKey> {
     try {
       const file = await this._driveApi.get(
         `/files/${fileId}`,
@@ -62,7 +63,7 @@ export default class GDriveClient {
           },
         })
 
-      return file.data
+      return file.data as RecoveryKey
     } catch (error) {
       if (this._isUnauthenticatedError(error)) {
         throw new Error('Invalid authentication credentials! Please provide a valid access token!')
@@ -85,7 +86,6 @@ export default class GDriveClient {
    * @param responseBody: error response from drive api call
    */
   _isUnauthenticatedError(responseBody: any): boolean {
-    console.log('_isUnauthenticatedError responseBody', responseBody)
     return _.get(responseBody, ['response', 'data', 'error', 'code'], 500) === 401
   }
 
@@ -97,7 +97,6 @@ export default class GDriveClient {
    * @param responseBody: error response from drive api call
    */
   _isFileNotFoundError(responseBody: any): boolean {
-    console.log('_isFileNotFoundError responseBody', responseBody)
     return _.get(responseBody, ['response', 'data', 'error', 'code'], 500) === 404
   }
 }
