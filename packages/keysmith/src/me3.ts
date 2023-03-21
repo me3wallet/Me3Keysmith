@@ -288,7 +288,7 @@ export default class Me3 {
        * if krFileId exists, it means user already have a recovery file existing
        * proceed to perform retrieval and set to _userSecret variable
        */
-      this._userSecret = await new GDriveClient().loadFile(accessToken, krFileId)
+      this._userSecret = await new GDriveClient().retrieveFile(accessToken, krFileId)
       return false // False for already exist user
     }
     /**

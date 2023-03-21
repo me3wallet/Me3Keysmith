@@ -70,7 +70,7 @@ describe('GDriveClient.saveFile() unit test', () => {
   })
 })
 
-describe('GDriveClient.loadFile() unit test', () => {
+describe('GDriveClient.retrieveFile() unit test', () => {
   let moxios: MockAdapter
   let client: GDriveClient
 
@@ -91,7 +91,7 @@ describe('GDriveClient.loadFile() unit test', () => {
       .reply(401, unauthenticatedResponse)
 
     await expect(
-      client.loadFile(
+      client.retrieveFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
@@ -104,7 +104,7 @@ describe('GDriveClient.loadFile() unit test', () => {
       .reply(404, couldNotFindFileIdResponse)
 
     await expect(
-      client.loadFile(
+      client.retrieveFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
@@ -117,7 +117,7 @@ describe('GDriveClient.loadFile() unit test', () => {
       .networkError()
 
     await expect(
-      client.loadFile(
+      client.retrieveFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
@@ -129,7 +129,7 @@ describe('GDriveClient.loadFile() unit test', () => {
       .onGet(/\/files\/\d+/)
       .reply(200, uploadSuccessResponse(expectedFileId))
 
-    const data = await client.loadFile(
+    const data = await client.retrieveFile(
       'an-authenticated-dummy-token',
       expectedFileId
     )

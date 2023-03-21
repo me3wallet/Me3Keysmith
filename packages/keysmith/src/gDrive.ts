@@ -49,7 +49,7 @@ export default class GDriveClient {
     }
   }
 
-  async loadFile(accessToken: string, fileId: string): Promise<RecoveryKey> {
+  async retrieveFile(accessToken: string, fileId: string): Promise<RecoveryKey> {
     try {
       const file = await this._driveApi.get(
         `/files/${fileId}`,
