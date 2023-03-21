@@ -89,7 +89,16 @@ export default class Me3 {
     return true
   }
 
-  async getAuthLink(redirectURL: string): Promise<Record<string, string>> {
+  /**
+   * @param redirectURL
+   * @returns interface
+   *    data -> redirectUrl in string
+   *    myPriRsa -> TENTATIVE, clientside rsa pubkey
+   */
+  async getAuthLink(redirectURL: string): Promise<{
+    data: string;
+    myPriRsa: string;
+  }> {
     const { privateKey, publicKey } = rsa.genKeyPair()
     this._myPriRsa = privateKey
     const { data } = await this._client.get('/kc/auth/link', {
