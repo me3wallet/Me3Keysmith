@@ -16,11 +16,9 @@ const { expect } = chai
 
 describe('GDriveClient.saveFile() unit test', () => {
   let moxios: MockAdapter
-  let client: GDriveClient
 
   beforeEach(() => {
     moxios = new MockAdapter(axios)
-    client = new GDriveClient()
   })
 
   afterEach(() => {
@@ -33,8 +31,7 @@ describe('GDriveClient.saveFile() unit test', () => {
       .reply(401, unauthenticatedResponse)
 
     await expect(
-      client.saveFile(
-        'an-unauthenticated-dummy-token',
+      new GDriveClient('an-unauthenticated-dummy-token').saveFile(
         { foo: 'bar' },
         'foo_bar.json'
       )
@@ -47,8 +44,7 @@ describe('GDriveClient.saveFile() unit test', () => {
       .networkError()
 
     await expect(
-      client.saveFile(
-        'an-unauthenticated-dummy-token',
+      new GDriveClient('an-unauthenticated-dummy-token').saveFile(
         { foo: 'bar' },
         'foo_bar.json'
       )
@@ -61,8 +57,7 @@ describe('GDriveClient.saveFile() unit test', () => {
       .onPost('/files')
       .reply(200, uploadSuccessResponse(expectedFileId))
 
-    const fileId = await client.saveFile(
-      'an-authenticated-dummy-token',
+    const fileId = await new GDriveClient('an-authenticated-dummy-token').saveFile(
       { foo: 'bar' },
       'foo_bar.json'
     )
@@ -72,13 +67,11 @@ describe('GDriveClient.saveFile() unit test', () => {
 
 describe('GDriveClient.retrieveFile() unit test', () => {
   let moxios: MockAdapter
-  let client: GDriveClient
 
   const expectedFileId = '1mMNM34OJLereW81atiT71YPhOuVwiiNh'
 
   beforeEach(() => {
     moxios = new MockAdapter(axios)
-    client = new GDriveClient()
   })
 
   afterEach(() => {
@@ -91,10 +84,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(401, unauthenticatedResponse)
 
     await expect(
-      client.retrieveFile(
-        'an-unauthenticated-dummy-token',
-        expectedFileId
-      )
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
     ).to.eventually.be.rejectedWith('Invalid authentication credentials! Please provide a valid access token!')
   })
 
@@ -104,10 +94,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(404, couldNotFindFileIdResponse)
 
     await expect(
-      client.retrieveFile(
-        'an-unauthenticated-dummy-token',
-        expectedFileId
-      )
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
     ).to.eventually.be.rejectedWith('Unable to locate file as user have moved/removed recovery file. Please contact Me3 for assistance!')
   })
 
@@ -117,10 +104,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .networkError()
 
     await expect(
-      client.retrieveFile(
-        'an-unauthenticated-dummy-token',
-        expectedFileId
-      )
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
     ).to.eventually.be.rejectedWith('Unexpected error while retrieving recovery file from user gDrive! Please contact Me3 and provide the above error log!')
   })
 
@@ -129,10 +113,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .onGet(/\/files\/\d+/)
       .reply(200, uploadSuccessResponse(expectedFileId))
 
-    const data = await client.retrieveFile(
-      'an-authenticated-dummy-token',
-      expectedFileId
-    )
+    const data = await new GDriveClient('an-authenticated-dummy-token').retrieveFile(expectedFileId)
     expect(data).to.deep.equal(uploadSuccessResponse(expectedFileId))
   })
 })

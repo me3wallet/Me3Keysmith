@@ -6,14 +6,17 @@ import { RecoveryKey } from './types'
 export default class GDriveClient {
   private readonly _driveApi: AxiosInstance
 
-  constructor() {
+  constructor(accessToken: string) {
     this._driveApi = axios.create({
       baseURL: 'https://www.googleapis.com/upload/drive/v3',
       timeout: 10000,
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
     })
   }
 
-  async saveFile(accessToken: string, body: any, fileName: string): Promise<string> {
+  async saveFile(body: any, fileName: string): Promise<string> {
     const fileData = new FormData()
     fileData.append('metadata', JSON.stringify({
       name: fileName,
@@ -32,7 +35,6 @@ export default class GDriveClient {
             uploadType: 'multipart',
           },
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
             ...fileData.getHeaders(),
           },
         })
@@ -49,7 +51,7 @@ export default class GDriveClient {
     }
   }
 
-  async retrieveFile(accessToken: string, fileId: string): Promise<RecoveryKey> {
+  async retrieveFile(fileId: string): Promise<RecoveryKey> {
     try {
       const file = await this._driveApi.get(
         `/files/${fileId}`,
@@ -58,7 +60,6 @@ export default class GDriveClient {
             alt: 'media',
           },
           headers: {
-            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         })
