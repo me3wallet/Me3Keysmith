@@ -89,7 +89,7 @@ export default class Me3 {
     return true
   }
 
-  async getAuthLink(redirectURL: string): Promise<string> {
+  async getAuthLink(redirectURL: string): Promise<Record<string, string>> {
     const { privateKey, publicKey } = rsa.genKeyPair()
     this._myPriRsa = privateKey
     const { data } = await this._client.get('/kc/auth/link', {
@@ -98,10 +98,13 @@ export default class Me3 {
         pubKey: publicKey,
       },
     })
-    return data
+    return { data, myPriRsa: this._myPriRsa }
   }
 
-  async getAuthToken(code: string, state: string, sessionState: string): Promise<Tokens> {
+  async getAuthToken(code: string, state: string, sessionState: string, priRsa: string): Promise<Tokens> {
+    // TODO: Remove tentative fix for handling priRsa token
+    this._myPriRsa = priRsa
+
     const { data } = await this._client.get('/kc/auth/code', {
       params: {
         code, state,

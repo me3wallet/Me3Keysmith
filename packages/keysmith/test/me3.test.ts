@@ -27,6 +27,7 @@ describe.skip('Me3 class testing', () => {
     const success = await me3.getAuthToken(
       '',
       '',
+      '',
       ''
     )
     expect(success).to.be.ok
