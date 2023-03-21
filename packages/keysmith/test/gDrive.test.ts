@@ -70,7 +70,7 @@ describe('GDriveClient.saveFile() unit test', () => {
   })
 })
 
-describe('GDriveClient.retrieveFile() unit test', () => {
+describe('GDriveClient.loadFile() unit test', () => {
   let moxios: MockAdapter
   let client: GDriveClient
 
@@ -91,7 +91,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(401, unauthenticatedResponse)
 
     await expect(
-      client.retrieveFile(
+      client.loadFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
@@ -104,7 +104,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(404, couldNotFindFileIdResponse)
 
     await expect(
-      client.retrieveFile(
+      client.loadFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
@@ -117,19 +117,19 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .networkError()
 
     await expect(
-      client.retrieveFile(
+      client.loadFile(
         'an-unauthenticated-dummy-token',
         expectedFileId
       )
     ).to.eventually.be.rejectedWith('Unexpected error while retrieving recovery file from user gDrive! Please contact Me3 and provide the above error log!')
   })
 
-  it('Should return user secret when retrieval from gdrive was successful', async () => {
+  it('Should return fileId when file upload to gDrive was successful', async () => {
     moxios
       .onGet(/\/files\/\d+/)
       .reply(200, uploadSuccessResponse(expectedFileId))
 
-    const data = await client.retrieveFile(
+    const data = await client.loadFile(
       'an-authenticated-dummy-token',
       expectedFileId
     )

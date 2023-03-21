@@ -288,7 +288,7 @@ export default class Me3 {
        * if krFileId exists, it means user already have a recovery file existing
        * proceed to perform retrieval and set to _userSecret variable
        */
-      this._userSecret = await new GDriveClient().retrieveFile(accessToken, krFileId)
+      this._userSecret = await new GDriveClient().loadFile(accessToken, krFileId)
       return false // False for already exist user
     }
     /**
@@ -311,7 +311,8 @@ export default class Me3 {
      * allow clientside to implement their own handlers
      * TODO: Standardise error interface to be exported and used for clientside error handling
      */
-    const jsonId = await new GDriveClient().saveFile(accessToken, secret, DriveName.json)
+    const uploadedFileDetails = await new GDriveClient().saveFile(accessToken, secret, DriveName.json)
+    const jsonId = _.get(uploadedFileDetails, ['id'])
     await updateGFileId(jsonId!)
     this._userSecret = secret
     // True for new user
