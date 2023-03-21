@@ -22,57 +22,57 @@ const me3 = new Me3({
 })
 
 
-// initiate Google OAuth2 access
-app.get('/initiateAccess', async (req: Request, res: Response) => {
-  const gAuthUrl = await me3.getAuthLink(process.env.redirect)
-  return res.json({ data: { url: gAuthUrl } })
-})
-
-// initiateAccess callback handler
-let wallets = []
-app.get('/', async function (req, res) {
-  if (!_.has(req.query, 'code')) {
-    const auth_url = await me3.getAuthLink(process.env.redirect)
-    res.redirect(auth_url)
-    return
-  }
-
-  const success = await me3.getAuthToken(
-      _.get(req.query, 'code') as string,
-      _.get(req.query, 'state') as string,
-      _.get(req.query, 'session_state') as string,
-  )
-  if (success) {
-    res.redirect('https://www.me3.io/')
-    return
-  }
-  res.json({ error: 'Can\'t recover the wallets' })
-})
-
-app.get('/wallets', async function (req, res) {
-  try {
-    wallets = await me3.getWallets()
-    res.json(wallets)
-  } catch (e) {
-    res.send(e)
-  }
-})
-
-app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
-  if (_.isEmpty(wallets)) {
-    return res.json({ error: 'Oops, ERROR!', msg: 'No wallets loaded' })
-  }
-  try {
-    const { series, tx } = req.body
-    const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
-    const signed = await me3.signTx(walletToSign, {
-      ...tx,
-      value: ethers.parseEther(tx.value),
-    })
-
-    return res.json({ data: { signed } })
-  } catch (e) {
-    return res.json({ error: 'Oops, ERROR!', msg: e.message })
-  }
-}
-)
+// // initiate Google OAuth2 access
+// app.get('/initiateAccess', async (req: Request, res: Response) => {
+//   const gAuthUrl = await me3.getAuthLink(process.env.redirect)
+//   return res.json({ data: { url: gAuthUrl } })
+// })
+//
+// // initiateAccess callback handler
+// let wallets = []
+// app.get('/', async function (req, res) {
+//   if (!_.has(req.query, 'code')) {
+//     const auth_url = await me3.getAuthLink(process.env.redirect)
+//     res.redirect(auth_url)
+//     return
+//   }
+//
+//   const success = await me3.getAuthToken(
+//       _.get(req.query, 'code') as string,
+//       _.get(req.query, 'state') as string,
+//       _.get(req.query, 'session_state') as string,
+//   )
+//   if (success) {
+//     res.redirect('https://www.me3.io/')
+//     return
+//   }
+//   res.json({ error: 'Can\'t recover the wallets' })
+// })
+//
+// app.get('/wallets', async function (req, res) {
+//   try {
+//     wallets = await me3.getWallets()
+//     res.json(wallets)
+//   } catch (e) {
+//     res.send(e)
+//   }
+// })
+//
+// app.post('/signTx', bodyParser.json(), async (req: Request, res: Response) => {
+//   if (_.isEmpty(wallets)) {
+//     return res.json({ error: 'Oops, ERROR!', msg: 'No wallets loaded' })
+//   }
+//   try {
+//     const { series, tx } = req.body
+//     const walletToSign = wallets.find((w) => w.chainName.toLowerCase() === series.toLowerCase())
+//     const signed = await me3.signTx(walletToSign, {
+//       ...tx,
+//       value: ethers.parseEther(tx.value),
+//     })
+//
+//     return res.json({ data: { signed } })
+//   } catch (e) {
+//     return res.json({ error: 'Oops, ERROR!', msg: e.message })
+//   }
+// }
+// )
