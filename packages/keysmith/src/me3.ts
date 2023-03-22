@@ -50,7 +50,7 @@ export default class Me3 {
       function (err) {
         const status = err.response ? err.response.status : null
 
-        if (status === 401) {
+        if (status === 401 && !_.isEmpty(_this._apiToken?.kc_refresh)) {
           return _this._refreshToken().then(_ => {
             err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
             return _this._client.request(err.config)
