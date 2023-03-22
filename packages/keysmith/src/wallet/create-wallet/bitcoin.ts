@@ -1,4 +1,5 @@
 import _ from 'lodash'
+
 import { getWalletName } from './common'
 
 export const createBtcWallet = (chains: [any], mnemonic: string) => _.chain(chains)

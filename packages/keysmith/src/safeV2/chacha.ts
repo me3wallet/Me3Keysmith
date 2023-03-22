@@ -1,6 +1,7 @@
 import { ChaCha20Poly1305, KEY_LENGTH, NONCE_LENGTH } from '@stablelib/chacha20poly1305'
 import { concat } from '@stablelib/bytes'
 import { random, util } from 'node-forge'
+
 import { forgeBytes2Uint8Array, uint8Array2ForgeBytes } from './common'
 
 export function encrypt(utf8PlainBytes: string): { keyBytes: string, b64DataBytes: string } {

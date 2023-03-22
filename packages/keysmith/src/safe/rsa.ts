@@ -8,6 +8,7 @@ import {
   publicDecrypt,
   publicEncrypt,
 } from 'crypto'
+
 import { RsaKey } from '../types'
 
 export async function genKeyPair(): Promise<RsaKey> {

@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
-
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+
 import { CommData, DriveName, ME3Config, Tokens, Me3Wallet } from './types'
 import createWallet from './wallet'
 import { aes, rsa, v2 } from './safeV2'
@@ -51,6 +51,7 @@ export default class Me3 {
         const status = err.response ? err.response.status : null
 
         if (status === 401) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           return _this._refreshToken().then(_ => {
             err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
             return _this._client.request(err.config)
@@ -58,7 +59,7 @@ export default class Me3 {
         }
 
         return Promise.reject(err)
-      }
+      },
     )
   }
 
@@ -204,7 +205,7 @@ export default class Me3 {
     this._myPriRsa = priRsa
     const { data } = await this._client.post(
       '$/kc/auth/refresh',
-      { refresh: refreshToken }
+      { refresh: refreshToken },
     )
     this._apiToken = data as Tokens
     return this._apiToken
@@ -336,7 +337,7 @@ export default class Me3 {
     }
     const { data } = await axios.post(
       `${this._client.defaults.baseURL}/kc/auth/refresh`,
-      { refresh: this._apiToken?.kc_refresh }
+      { refresh: this._apiToken?.kc_refresh },
     )
     // type assert here since decrypted response from /kc/auth/refresh
     // is in the type Tokens

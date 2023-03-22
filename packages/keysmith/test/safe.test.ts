@@ -1,12 +1,12 @@
 import chai from 'chai'
 import { describe } from 'mocha'
+import chaiAsPromised from 'chai-as-promised'
 
 import { aes, v1, v2 } from '../src/safe'
 import * as rsa from '../src/safe/rsa'
 import * as chacha from '../src/safe/chacha'
 
 import { ALICE, RAWKEY } from './fixtures/configs'
-import chaiAsPromised from 'chai-as-promised'
 import { AES_PWD, AES_SALT, BIG_JSON } from './fixtures/safe'
 
 chai.use(chaiAsPromised)
@@ -18,7 +18,7 @@ describe('Safe testing', () => {
       const encrypted = v1.encrypt(
         RAWKEY,
         ALICE.password,
-        ALICE.salt
+        ALICE.salt,
       )
       expect(encrypted).to.deep.equal(ALICE.key)
     })
@@ -26,7 +26,7 @@ describe('Safe testing', () => {
       const decrypted = v1.decrypt(
         ALICE.key,
         ALICE.password,
-        ALICE.salt
+        ALICE.salt,
       )
       expect(decrypted).to.deep.equal(RAWKEY)
     })

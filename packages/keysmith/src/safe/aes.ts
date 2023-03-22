@@ -1,5 +1,6 @@
-import _ from 'lodash'
 import { createCipheriv, createDecipheriv, pbkdf2Sync } from 'crypto'
+
+import _ from 'lodash'
 
 const ENC_ALGO = 256
 const KEY_SIZE = ENC_ALGO / 8

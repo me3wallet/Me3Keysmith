@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import { describe } from 'mocha'
 
 import Google from '../src/google'
+
 import { ALICE } from './fixtures/configs'
 
 chai.use(chaiAsPromised)
@@ -24,7 +25,7 @@ describe.skip('Google OAuth Client Object testing', () => {
     const jsonId = await gClient.saveFile(
       gClient.str2Readable(secure),
       'hello.json',
-      'application/json'
+      'application/json',
     )
     console.log(jsonId)
     expect(jsonId).to.be.ok
