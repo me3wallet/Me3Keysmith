@@ -202,8 +202,8 @@ export default class Me3 {
   async manualRefreshToken(refreshToken: string, priRsa: string): Promise<Tokens> {
     // TODO: Remove tentative fix for cross session
     this._myPriRsa = priRsa
-    const { data } = await axios.post(
-      `${this._client.defaults.baseURL}/kc/auth/refresh`,
+    const { data } = await this._client.post(
+      '$/kc/auth/refresh',
       { refresh: refreshToken }
     )
     this._apiToken = data as Tokens
