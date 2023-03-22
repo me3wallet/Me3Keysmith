@@ -203,7 +203,7 @@ export default class Me3 {
     // TODO: Remove tentative fix for cross session
     this._myPriRsa = priRsa
     const { data } = await this._client.post(
-      '$/kc/auth/refresh',
+      '/kc/auth/refresh',
       { refresh: refreshToken }
     )
     this._apiToken = data as Tokens
