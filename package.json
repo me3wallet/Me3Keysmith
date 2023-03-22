@@ -11,7 +11,7 @@
   "scripts": {
     "bootstrap": "lerna link && lerna bootstrap",
     "build": "lerna run build",
-    "dev": "yarn bootstrap && yarn serve",
+    "dev": "lerna run dev --scope \"@me3technology/*\" --stream --parallel",
     "prepare": "npm run bootstrap && npm run build",
     "prerelease": "lerna exec yarn install --stream --scope \"@me3technology/*\" -- && lerna run build --scope \"@me3technology/*\"",
     "serve": "lerna run --scope @me3technology/keysmith --stream --parallel --scope @me3technology/sample serve",
