@@ -1,10 +1,10 @@
+import { AddressInfo } from 'net'
+
 import _ from 'lodash'
 import dotenv from 'dotenv'
-import { AddressInfo } from 'net'
 import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import * as ethers from 'ethers'
-
 import Me3 from '@me3technology/keysmith'
 
 dotenv.config()

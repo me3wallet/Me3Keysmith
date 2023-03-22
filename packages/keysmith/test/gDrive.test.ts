@@ -5,6 +5,7 @@ import MockAdapter from 'axios-mock-adapter'
 import axios from 'axios'
 
 import GDriveClient from '../src/gDrive'
+
 import {
   couldNotFindFileIdResponse,
   unauthenticatedResponse,
@@ -33,8 +34,8 @@ describe('GDriveClient.saveFile() unit test', () => {
     await expect(
       new GDriveClient('an-unauthenticated-dummy-token').saveFile(
         { foo: 'bar' },
-        'foo_bar.json'
-      )
+        'foo_bar.json',
+      ),
     ).to.eventually.be.rejectedWith('Invalid authentication credentials! Please provide a valid access token!')
   })
 
@@ -46,8 +47,8 @@ describe('GDriveClient.saveFile() unit test', () => {
     await expect(
       new GDriveClient('an-unauthenticated-dummy-token').saveFile(
         { foo: 'bar' },
-        'foo_bar.json'
-      )
+        'foo_bar.json',
+      ),
     ).to.eventually.be.rejectedWith('Unexpected error while uploading recovery file to user gDrive! Please contact Me3 and provide the above error log!')
   })
 
@@ -59,7 +60,7 @@ describe('GDriveClient.saveFile() unit test', () => {
 
     const fileId = await new GDriveClient('an-authenticated-dummy-token').saveFile(
       { foo: 'bar' },
-      'foo_bar.json'
+      'foo_bar.json',
     )
     expect(fileId).to.deep.equal(expectedFileId)
   })
@@ -84,7 +85,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(401, unauthenticatedResponse)
 
     await expect(
-      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId),
     ).to.eventually.be.rejectedWith('Invalid authentication credentials! Please provide a valid access token!')
   })
 
@@ -94,7 +95,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .reply(404, couldNotFindFileIdResponse)
 
     await expect(
-      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId),
     ).to.eventually.be.rejectedWith('Unable to locate file as user have moved/removed recovery file. Please contact Me3 for assistance!')
   })
 
@@ -104,7 +105,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
       .networkError()
 
     await expect(
-      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId)
+      new GDriveClient('an-unauthenticated-dummy-token').retrieveFile(expectedFileId),
     ).to.eventually.be.rejectedWith('Unexpected error while retrieving recovery file from user gDrive! Please contact Me3 and provide the above error log!')
   })
 

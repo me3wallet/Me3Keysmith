@@ -4,12 +4,13 @@ import { utils } from 'ethers'
 import { describe } from 'mocha'
 import MockAdapter from 'axios-mock-adapter'
 import sinon from 'sinon'
+import axios from 'axios'
 
 import Me3 from '../src'
-import { CONFIG, REDIRECTED, workableConfig } from './fixtures/configs'
 import { v2, aes } from '../src/safeV2'
+
+import { CONFIG, REDIRECTED, workableConfig } from './fixtures/configs'
 import { mockGetChainListResponse } from './fixtures/me3-get-chain-list'
-import axios from 'axios'
 
 chai.use(chaiAsPromised)
 const { expect } = chai
@@ -28,7 +29,7 @@ describe.skip('Me3 class testing', () => {
       '',
       '',
       '',
-      ''
+      '',
     )
     expect(success).to.be.ok
   })
@@ -78,7 +79,7 @@ describe('Me3 class unit test::signTx()', () => {
           // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         }
-        , tx)
+        , tx),
     ).to.eventually.be.rejectedWith('Chain not supported')
   })
 
@@ -93,7 +94,7 @@ describe('Me3 class unit test::signTx()', () => {
           // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         },
-        tx)
+        tx),
     ).to.eventually.be.rejectedWith('Not implemented yet')
   })
 
@@ -108,7 +109,7 @@ describe('Me3 class unit test::signTx()', () => {
           // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         },
-        tx)
+        tx),
     ).to.eventually.be.rejectedWith('Unsupported series')
   })
 

@@ -4,7 +4,7 @@ import { TransactionRequest } from './domain'
 
 export const performSignEvmTransaction = async (
   privateKey: string,
-  transactionRequest: TransactionRequest
+  transactionRequest: TransactionRequest,
 ): Promise<string> => {
   let wallet
   try {

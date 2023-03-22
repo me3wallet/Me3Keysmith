@@ -1,9 +1,11 @@
 import _ from 'lodash'
+import { util } from 'node-forge'
+
+import { CommData, CommSecret } from '../types'
+
 import * as aes from './aes'
 import * as rsa from './rsa'
 import * as chacha from './chacha'
-import { CommData, CommSecret } from '../types'
-import { util } from 'node-forge'
 
 export function encrypt(plain: string, commSecret: CommSecret): CommData {
   if (!_.isEmpty(commSecret.aesPwd) && !_.isEmpty(commSecret.aesSalt)) {

@@ -33,7 +33,7 @@ export function decrypt(key: Buffer, encrypted: Buffer): Buffer {
   return Buffer.concat([
     decipher.update(encrypted.subarray(
       NONCE_LEN,
-      -AUTHTAG_LEN
+      -AUTHTAG_LEN,
     )),
     decipher.final(),
   ])
