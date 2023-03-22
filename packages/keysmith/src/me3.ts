@@ -199,6 +199,17 @@ export default class Me3 {
     return JSON.parse(decrypted)
   }
 
+  async manualRefreshToken(refreshToken: string, priRsa: string): Promise<Tokens> {
+    // TODO: Remove tentative fix for cross session
+    this._myPriRsa = priRsa
+    const { data } = await axios.post(
+      `${this._client.defaults.baseURL}/kc/auth/refresh`,
+      { refresh: refreshToken }
+    )
+    this._apiToken = data as Tokens
+    return this._apiToken
+  }
+
   /**
    * Signs a transaction
    * @param wallet: wallet to perform signing {@link Me3Wallet}
