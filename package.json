@@ -16,27 +16,29 @@
     "prerelease": "lerna exec yarn install --stream --scope \"@me3technology/*\" -- && lerna run build --scope \"@me3technology/*\"",
     "serve": "lerna run --scope @me3technology/keysmith --stream --parallel --scope @me3technology/sample serve",
     "lint": "eslint . --ext .ts --fix",
-    "test:keysmith": "lerna run test --scope @me3technology/keysmith"
+    "test:keysmith": "lerna run test --scope @me3technology/keysmith",
+    "playground": "lerna run --scope @me3technology/keysmith playground"
   },
   "devDependencies": {
-    "lerna": "^6.1.0",
-    "ts-node": "^10.9.1",
+    "@types/lodash": "^4.14.185",
     "@types/node": "^18.7.8",
-    "typescript": "^4.7.4",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
-    "@typescript-eslint/parser": "^5.33.1",
-    "@types/lodash": "^4.14.185"
+    "lerna": "^6.1.0",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "lodash": "^4.17.21"
   },
-  "resolutions":{
-    "sharp":"0.28.0"
+  "resolutions": {
+    "sharp": "0.28.0"
   }
 }

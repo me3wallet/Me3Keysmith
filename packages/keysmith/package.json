@@ -37,7 +37,8 @@
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "playground": "ts-node-dev --respawn --transpile-only src/__playgrounds__/index.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
