@@ -125,9 +125,9 @@ export default class Me3 {
   }
 
   async getWallets(accessToken: string) {
-    if (_.isEmpty(this._apiToken)) {
-      throw Error('Error! Operation failed.Please contact me3 team!')
-    }
+    // if (_.isEmpty(this._apiToken)) {
+    //   throw Error('Error! Operation failed.Please contact me3 team!')
+    // }
 
     const { email, krFileId } = await this._getUserProfile()
     const isNewUser = await this._loadBackupFile(accessToken, krFileId)
