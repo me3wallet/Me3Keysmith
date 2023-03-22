@@ -50,8 +50,9 @@ const me3 = new Me3({
 // })
 //
 // app.get('/wallets', async function (req, res) {
+// // TODO: update getWallet() method
 //   try {
-//     wallets = await me3.getWallets()
+//     wallets = await me3.getWallets('')
 //     res.json(wallets)
 //   } catch (e) {
 //     res.send(e)

@@ -124,13 +124,13 @@ export default class Me3 {
     return this._apiToken
   }
 
-  async getWallets() {
-    if (_.isEmpty(this._apiToken)) {
-      throw Error('Error! Operation failed.Please contact me3 team!')
-    }
+  async getWallets(googleAccessToken: string) {
+    // if (_.isEmpty(this._apiToken)) {
+    //   throw Error('Error! Operation failed.Please contact me3 team!')
+    // }
 
     const { email, krFileId } = await this._getUserProfile()
-    const isNewUser = await this._loadBackupFile(krFileId)
+    const isNewUser = await this._loadBackupFile(googleAccessToken, krFileId)
     if (!isNewUser) {
       console.log(`Already exist, Restore wallets for ${email}!`)
       return await this._loadWallets()
@@ -197,6 +197,17 @@ export default class Me3 {
 
     const decrypted = v2.decrypt(data, secure)
     return JSON.parse(decrypted)
+  }
+
+  async manualRefreshToken(refreshToken: string, priRsa: string): Promise<Tokens> {
+    // TODO: Remove tentative fix for cross session
+    this._myPriRsa = priRsa
+    const { data } = await axios.post(
+      `${this._client.defaults.baseURL}/kc/auth/refresh`,
+      { refresh: refreshToken }
+    )
+    this._apiToken = data as Tokens
+    return this._apiToken
   }
 
   /**

@@ -34,7 +34,7 @@ describe.skip('Me3 class testing', () => {
   })
 
   it('Me3::getWallets', async function () {
-    const wallets = await me3.getWallets()
+    const wallets = await me3.getWallets('gAccessToken-here')
     console.log(wallets)
     expect(wallets.length).to.deep.equal(15)
   })
