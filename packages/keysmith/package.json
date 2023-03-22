@@ -31,6 +31,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "dev": "watch 'yarn build' ./src",
     "lint": "eslint . --ext .ts --fix",
     "test": "mocha",
     "prepare": "npm run build",
@@ -53,7 +54,8 @@
     "jest": "^28.1.3",
     "mocha": "^10.2.0",
     "sinon": "^15.0.1",
-    "ts-jest": "^28.0.8"
+    "ts-jest": "^28.0.8",
+    "watch": "^1.0.2"
   },
   "dependencies": {
     "@polkadot/keyring": "^10.1.8",
