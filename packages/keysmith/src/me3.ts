@@ -49,9 +49,9 @@ export default class Me3 {
       },
       function (err) {
         const status = err.response ? err.response.status : null
-
-        if (status === 401) {
+        
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        if (status === 401 && !_.isEmpty(_this._apiToken?.kc_refresh)) {
           return _this._refreshToken().then(_ => {
             err.config.headers['Authorization'] = `Bearer ${_this._apiToken.kc_access}`
             return _this._client.request(err.config)
@@ -204,8 +204,8 @@ export default class Me3 {
     // TODO: Remove tentative fix for cross session
     this._myPriRsa = priRsa
     const { data } = await this._client.post(
-      '$/kc/auth/refresh',
-      { refresh: refreshToken },
+      '/kc/auth/refresh',
+      { refresh: refreshToken }
     )
     this._apiToken = data as Tokens
     return this._apiToken
