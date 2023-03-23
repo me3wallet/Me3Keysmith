@@ -9,7 +9,7 @@ export default class GDriveClient {
 
   constructor(accessToken: string) {
     this._driveApi = axios.create({
-      baseURL: 'https://www.googleapis.com/upload/drive/v3',
+      baseURL: 'https://www.googleapis.com',
       timeout: 10000,
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -29,7 +29,7 @@ export default class GDriveClient {
 
     try {
       const uploadedFile = await this._driveApi.post(
-        '/files',
+        '/upload/drive/v3/files',
         fileData,
         {
           params: {
@@ -55,7 +55,7 @@ export default class GDriveClient {
   async retrieveFile(fileId: string): Promise<RecoveryKey> {
     try {
       const file = await this._driveApi.get(
-        `/files/${fileId}`,
+        `/drive/v3/files/${fileId}`,
         {
           params: {
             alt: 'media',
