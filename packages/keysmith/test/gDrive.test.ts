@@ -28,7 +28,7 @@ describe('GDriveClient.saveFile() unit test', () => {
 
   it('Should throw when accessToken provided is expired', async () => {
     moxios
-      .onPost('/files')
+      .onPost('/upload/drive/v3/files')
       .reply(401, unauthenticatedResponse)
 
     await expect(
@@ -41,7 +41,7 @@ describe('GDriveClient.saveFile() unit test', () => {
 
   it('Should throw when its other unexpected error', async () => {
     moxios
-      .onPost('/files')
+      .onPost('/upload/drive/v3/files')
       .networkError()
 
     await expect(
@@ -55,7 +55,7 @@ describe('GDriveClient.saveFile() unit test', () => {
   it('Should return fileId when file upload to gDrive was successful', async () => {
     const expectedFileId = '1mMNM34OJLereW81atiT71YPhOuVwiiNh'
     moxios
-      .onPost('/files')
+      .onPost('/upload/drive/v3/files')
       .reply(200, uploadSuccessResponse(expectedFileId))
 
     const fileId = await new GDriveClient('an-authenticated-dummy-token').saveFile(
@@ -81,7 +81,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
 
   it('Should throw when accessToken provided is expired', async () => {
     moxios
-      .onGet(/\/files\/\d+/)
+      .onGet(/\/drive\/v3\/files\/\d+/)
       .reply(401, unauthenticatedResponse)
 
     await expect(
@@ -91,7 +91,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
 
   it('Should throw when fileId provided could not be found in user drive', async () => {
     moxios
-      .onGet(/\/files\/\d+/)
+      .onGet(/\/drive\/v3\/files\/\d+/)
       .reply(404, couldNotFindFileIdResponse)
 
     await expect(
@@ -101,7 +101,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
 
   it('Should throw when its other unexpected error', async () => {
     moxios
-      .onGet(/\/files\/\d+/)
+      .onGet(/\/drive\/v3\/files\/\d+/)
       .networkError()
 
     await expect(
@@ -111,7 +111,7 @@ describe('GDriveClient.retrieveFile() unit test', () => {
 
   it('Should return fileId when file upload to gDrive was successful', async () => {
     moxios
-      .onGet(/\/files\/\d+/)
+      .onGet(/\/drive\/v3\/files\/\d+/)
       .reply(200, uploadSuccessResponse(expectedFileId))
 
     const data = await new GDriveClient('an-authenticated-dummy-token').retrieveFile(expectedFileId)
