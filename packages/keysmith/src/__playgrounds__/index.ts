@@ -1,5 +1,6 @@
-import Me3 from '../me3'
 import { createInterface } from 'readline'
+
+import Me3 from '../me3'
 
 const ENDPOINT = 'https://dev-wallet.me3.io/me3-api'
 const REDIRECT_URL = 'http://localhost:3000/authenticated'
@@ -14,7 +15,7 @@ const prompt = <T>(query: string) =>
     readline.question(query, (ans) => {
       resolve(ans as T)
       readline.close()
-    })
+    }),
   )
 
 const routeTest = async () => {
@@ -29,7 +30,7 @@ const routeTest = async () => {
     console.log(authURL)
     //Go login with authURL, then paste the redirected url here
     const redirectedURL = await prompt<string>(
-      '\nPaste the redirected URL here: \n'
+      '\nPaste the redirected URL here: \n',
     )
 
     //Get params from url string
@@ -42,7 +43,7 @@ const routeTest = async () => {
       code,
       state,
       session_state,
-      myPriRsa
+      myPriRsa,
     )
 
     console.log(authTokens)
