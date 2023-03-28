@@ -7,7 +7,7 @@ import sinon from 'sinon'
 
 import Me3 from '../src'
 import { CONFIG, REDIRECTED, workableConfig } from './fixtures/configs'
-import { v2, aes } from '../src/safe'
+import { v2, aes } from '../src/safeV2'
 import { mockGetChainListResponse } from './fixtures/me3-get-chain-list'
 import axios from 'axios'
 

@@ -1,9 +1,9 @@
 import chai from 'chai'
 import { describe } from 'mocha'
 
-import { aes, v1, v2 } from '../src/safe'
-import * as rsa from '../src/safe/rsa'
-import * as chacha from '../src/safe/chacha'
+import { aes, v1, v2 } from '../src/safeV2'
+import * as rsa from '../src/safeV2/rsa'
+import * as chacha from '../src/safeV2/chacha'
 
 import { ALICE, RAWKEY } from './fixtures/configs'
 import chaiAsPromised from 'chai-as-promised'
@@ -43,17 +43,16 @@ describe('Safe testing', () => {
       expect(key).to.be.ok
 
       const plain = 'Hello World'
-      const encoded = rsa.encrypt(key.publicKey, Buffer.from(plain, 'utf8'))
-      expect(rsa.decrypt(key.privateKey, encoded).toString('utf8')).to.deep.equal(plain)
+      const encoded = rsa.encrypt(key.publicKey, plain)
+      expect(rsa.decrypt(key.privateKey, encoded)).to.deep.equal(plain)
     })
 
     it('Chacha testing', () => {
-      const chachaKey = chacha.genPassword()
       const plainText = 'Hello world'
 
-      const encrypted = chacha.encrypt(chachaKey, Buffer.from(plainText, 'utf8'))
-      const decrypted = chacha.decrypt(chachaKey, encrypted)
-      expect(decrypted.toString('utf8')).to.deep.equal(plainText)
+      const { keyBytes, b64DataBytes } = chacha.encrypt(plainText)
+      const decrypted = chacha.decrypt(keyBytes, b64DataBytes)
+      expect(decrypted).to.deep.equal(plainText)
     })
     it('Enc/Dec testing', async function () {
       const rsaKey = await rsa.genKeyPair(),

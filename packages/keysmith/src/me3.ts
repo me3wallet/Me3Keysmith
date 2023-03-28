@@ -4,12 +4,14 @@ import _ from 'lodash'
 import RandomString from 'randomstring'
 import * as bip39 from 'bip39'
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { CommData, DriveName, ME3Config, Tokens, Me3Wallet } from './types'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { CommData, DriveName, ME3Config, Me3Wallet, Tokens } from './types'
 import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safeV2'
 import { signTransaction } from './transaction'
+import { IChainContext } from './chains/common/context'
+import SolanaContext from './chains/solana/context'
 
 export default class Me3 {
   private _gClient: Google
@@ -19,6 +21,8 @@ export default class Me3 {
   private _userSecret?: any
   private _myPriRsa?: string
   private _serverPubRsa?: string
+
+  private _chainCtxs = new Map<string, IChainContext>()
 
   constructor(credential: ME3Config) {
     this._client = axios.create({
@@ -30,7 +34,7 @@ export default class Me3 {
       'Partner-ID': credential.partnerId,
     }
     const _this: Me3 = this
-    this._client.interceptors.request.use( (config) => {
+    this._client.interceptors.request.use((config) => {
       let chain = _.chain(companyHeader).pickBy(_.identity)
       if (!_.isEmpty(_this._apiToken?.kc_access)) {
         chain = chain.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
@@ -61,6 +65,8 @@ export default class Me3 {
         return Promise.reject(err)
       }
     )
+
+    this._chainCtxs['sol'] = new SolanaContext('sol')
   }
 
   /**
@@ -203,8 +209,14 @@ export default class Me3 {
     if (_.isEmpty(chainFound)) {
       throw Error('Chain not supported')
     }
-
     const [, decipher] = v2.getWalletCiphers(this._userSecret)
+
+    const refinedSeries = _.toLower(chainFound.series)
+    if (_.has(this._chainCtxs, refinedSeries)) {
+      return this._chainCtxs[refinedSeries].signTx(wallet, txRequest, decipher)
+    }
+
+    // Deprecated, let's migrate to new mode
     return await signTransaction({
       series: chainFound.series,
       privateKey: decipher(wallet.secret),
@@ -241,8 +253,16 @@ export default class Me3 {
     // Create wallets
     const mnemonic = bip39.generateMnemonic()
     const wallets = new Array<any>()
+
+    const [cipher] = v2.getWalletCiphers(this._userSecret)
+
     for (const entry of _.entries(refined)) {
-      const _wallets = await createWallet(entry, mnemonic)
+      const [series, chains] = entry
+      const _wallets = _.has(this._chainCtxs, series)
+        ? await this._chainCtxs[series].createWallet(chains, mnemonic, cipher)
+        // Deprecated way, please migrate to above
+        : await createWallet(entry, mnemonic)
+
       if (!_.isEmpty(_wallets)) {
         wallets.push(_wallets)
       }

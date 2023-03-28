@@ -43,10 +43,10 @@ interface CommData {
 }
 
 interface Me3Wallet {
-  chainName: string;
-  walletName: string;
-  walletAddress: string;
-  secret: string;
+  chainName: string,
+  walletName: string,
+  walletAddress: string,
+  secret: string,
 }
 
 interface WalletRaw {

@@ -71,7 +71,8 @@
     "body-parser": "^1.20.1",
     "ethers": "^5.7.1",
     "googleapis": "^108.0.0",
-    "randomstring": "^1.2.2"
+    "randomstring": "^1.2.2",
+    "uuid": "^9.0.0"
   },
   "resolutions": {
     "sharp": "0.28.0"
