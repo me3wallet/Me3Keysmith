@@ -3,9 +3,7 @@ import { ME3Config } from '../../src/types'
 export const CONFIG: ME3Config = {
   endpoint: '',
   partnerId: '0',
-  client_id: '',
-  client_secret: '',
-  redirect_uris: [''],
+  redirect_url: '',
 }
 export const REDIRECTED = ''
 
@@ -29,7 +27,5 @@ export const TEST_TOKEN = {
 export const workableConfig: ME3Config = {
   endpoint: 'https://unicorn-fairy.bounce.io/',
   partnerId: '3674',
-  client_id: 'uuid',
-  client_secret: 'sample',
-  redirect_uris: ['http://localhost:5656'],
+  redirect_url: 'http://localhost:5656',
 }

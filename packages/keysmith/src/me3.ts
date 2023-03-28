@@ -129,7 +129,7 @@ export default class Me3 {
     const [cipher] = v2.getWalletCiphers(this._userSecret)
 
     const wallets = await this._createWallets().then(
-      wallets => _.map(wallets, w => ({
+      results => _.map(results, w => ({
         chainName: w.chainName,
         walletName: w.walletName,
         walletAddress: w.walletAddress,
@@ -233,27 +233,18 @@ export default class Me3 {
 
   private async _createWallets() {
     const chains = await this._getChainList()
-    const refined: Record<string, [any]> = _.reduce(
+    const refined = _.groupBy(
       chains,
-      (result, acc) => {
-        const list = result[_.toLower(acc.series)] || []
-        list.push({
-          chainName: acc.name,
-          walletName: _.trim(`3rd_${acc.description}`),
-        })
-        result[_.toLower(acc.series)] = list
-        return result
-      },
-      {},
+      chain => _.toLower(chain.series),
     )
 
     // Create wallets
     const mnemonic = bip39.generateMnemonic()
     const wallets = new Array<any>()
-    for (const [key, list] of _.entries(refined)) {
-      const wallet = await createWallet(key, mnemonic)
-      if (!_.isEmpty(wallet)) {
-        wallets.push(_.map(list, (it) => _.merge(it, wallet)))
+    for (const entry of _.entries(refined)) {
+      const _wallets = await createWallet(entry, mnemonic)
+      if (!_.isEmpty(_wallets)) {
+        wallets.push(_wallets)
       }
     }
     return _.flatten(wallets)

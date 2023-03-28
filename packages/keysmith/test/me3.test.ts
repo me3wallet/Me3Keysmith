@@ -18,13 +18,17 @@ describe.skip('Me3 class testing', () => {
   const me3 = new Me3(CONFIG)
 
   it('Me3::getGAuthUrl', function () {
-    const authURL = me3.getGAuthUrl()
+    const authURL = me3.getAuthLink(REDIRECTED)
     console.log(authURL)
     expect(authURL).to.be.ok
   })
 
   it('Me3::getGToken', async function () {
-    const success = await me3.getGToken(REDIRECTED)
+    const success = await me3.getAuthToken(
+      '',
+      '',
+      ''
+    )
     expect(success).to.be.ok
   })
 
@@ -70,6 +74,7 @@ describe('Me3 class unit test::signTx()', () => {
           chainName: 'doge',
           walletName: 'ethereum-1',
           walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+          // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         }
         , tx)
@@ -84,6 +89,7 @@ describe('Me3 class unit test::signTx()', () => {
           chainName: 'ltc',
           walletName: 'litecoin-1',
           walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+          // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         },
         tx)
@@ -98,6 +104,7 @@ describe('Me3 class unit test::signTx()', () => {
           chainName: 'moon',
           walletName: 'mooncoin-1',
           walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+          // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
           secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
         },
         tx)
@@ -110,6 +117,7 @@ describe('Me3 class unit test::signTx()', () => {
       chainName: 'eth',
       walletName: 'ethereum-1',
       walletAddress: '0xb8272B0eAe5B5Ea681AcB33401b33A2c2D6db351',
+      // TODO: This secret is not raw private key, but it is AES encrypted with KR (Keyrecovery file)
       secret: '0x1da6847600b0ee25e9ad9a52abbd786dd2502fa4005dd5af9310b7cc7a3b25db',
     }, tx)
 
