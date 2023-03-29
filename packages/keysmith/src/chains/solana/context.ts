@@ -1,13 +1,18 @@
 import _ from 'lodash'
 import * as bip39 from 'bip39'
 import * as bs58 from 'bs58'
-import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js'
+import { clusterApiUrl, Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js'
 
 import { IChainContext } from '../_share_/context'
 import { Me3Wallet } from '../../types'
 import { WalletCipher } from '../../safeV2/v2'
 import { getWalletName } from '../_share_/functions'
 
+const RpcEndpoint = {
+  'sol': 'mainnet-beta',
+  'soldev': 'devnet',
+  'soltest': 'testnet',
+}
 export class SolanaContext implements IChainContext {
   readonly series: string
 
@@ -40,7 +45,8 @@ export class SolanaContext implements IChainContext {
     pkDecipher: (pk: string) => string
   ): Promise<string> {
     if (_.isEmpty(tx.recentBlockhash) || _.isNil(tx.lastValidBlockHeight)) {
-      const solConn = new Connection(mainChain.node)
+      const rpc = mainChain.node ?? clusterApiUrl(RpcEndpoint[_.toLower(wallet.chainName)])
+      const solConn = new Connection(rpc)
       const lastHash = await solConn.getLatestBlockhash('confirmed')
       tx.recentBlockhash = lastHash.blockhash
       tx.lastValidBlockHeight = lastHash.lastValidBlockHeight
