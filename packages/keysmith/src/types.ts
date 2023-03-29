@@ -49,9 +49,4 @@ interface Me3Wallet {
   secret: string,
 }
 
-interface WalletRaw {
-  walletAddress: string;
-  secretRaw: string;
-}
-
-export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet, WalletRaw }
+export { DriveName, ME3Config, RsaKey, Tokens, CommSecret, CommData, Me3Wallet }

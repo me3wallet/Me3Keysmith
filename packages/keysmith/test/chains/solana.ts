@@ -6,7 +6,7 @@ import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 
 import { v2 } from '../../src/safeV2'
 import SolanaContext from '../../src/chains/solana/context'
-import { IChainContext } from '../../src/chains/common/context'
+import { IChainContext } from '../../src/chains/_share_/context'
 import { mockGetChainListResponse } from '../fixtures/me3-get-chain-list'
 import { ALICE } from '../fixtures/configs'
 import { Me3Wallet } from '../../src/types'

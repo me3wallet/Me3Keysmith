@@ -6,40 +6,44 @@ import * as bip39 from 'bip39'
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { CommData, DriveName, ME3Config, Me3Wallet, Tokens } from './types'
-import createWallet from './wallet'
 import Google from './google'
 import { aes, rsa, v2 } from './safeV2'
-import { signTransaction } from './transaction'
-import { IChainContext } from './chains/common/context'
-import SolanaContext from './chains/solana/context'
+import { BitcoinContext, EvmContext, FileContext, IChainContext, SolanaContext, SubstrateContext } from './chains'
 
 export default class Me3 {
   private _gClient: Google
   private readonly _client: AxiosInstance
 
+  // TODO: Should be grouped in Me3Session {{{
   private _apiToken?: Tokens
   private _userSecret?: any
   private _myPriRsa?: string
   private _serverPubRsa?: string
+  // TODO: Should be groupd in Me3Session }}}
 
   private _chainCtxs = new Map<string, IChainContext>()
 
   constructor(credential: ME3Config) {
     this._client = axios.create({
       baseURL: credential.endpoint,
+      timeout: (1000 * 60 * 30),
+      headers: {
+        'Company-ID': 2000,
+        'Partner-ID': credential.partnerId,
+      },
     })
 
-    const companyHeader = {
-      'Company-ID': 2000,
-      'Partner-ID': credential.partnerId,
-    }
     const _this: Me3 = this
     this._client.interceptors.request.use((config) => {
-      let chain = _.chain(companyHeader).pickBy(_.identity)
+      // https://stackoverflow.com/a/43439886
+      delete process.env['http_proxy']
+      delete process.env['HTTP_PROXY']
+      delete process.env['https_proxy']
+      delete process.env['HTTPS_PROXY']
+
       if (!_.isEmpty(_this._apiToken?.kc_access)) {
-        chain = chain.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
+        config.headers.set('Authorization', `Bearer ${_this._apiToken.kc_access}`)
       }
-      config.headers = chain.merge(config.headers).value()
       return config
     })
     this._client.interceptors.response.use(
@@ -67,6 +71,10 @@ export default class Me3 {
     )
 
     this._chainCtxs['sol'] = new SolanaContext('sol')
+    this._chainCtxs['eth'] = new EvmContext('eth')
+    this._chainCtxs['btc'] = new BitcoinContext('btc')
+    this._chainCtxs['dot'] = new SubstrateContext('dot')
+    this._chainCtxs['fil'] = new FileContext('fil')
   }
 
   /**
@@ -126,23 +134,18 @@ export default class Me3 {
 
     const { email, krFileId } = await this._getUserProfile()
     const isNewUser = await this._loadBackupFile(krFileId)
-    if (!isNewUser) {
+    if (isNewUser) {
+      console.log(`New User, Create wallets for ${email}!`)
+    } else {
       console.log(`Already exist, Restore wallets for ${email}!`)
-      return await this._loadWallets()
+      const wallets = await this._loadWallets()
+      if (!_.isEmpty(wallets)) {
+        return wallets
+      }
+      console.log(`OOPS, no wallet found and creating wallets for ${email}!`)
     }
 
-    console.log(`New User, Create wallets for ${email}!`)
-    const [cipher] = v2.getWalletCiphers(this._userSecret)
-
-    const wallets = await this._createWallets().then(
-      results => _.map(results, w => ({
-        chainName: w.chainName,
-        walletName: w.walletName,
-        walletAddress: w.walletAddress,
-        // TODO: We will provide encrypted private key, as partner wants tx sign on our module
-        secret: cipher(w.secretRaw),
-      })),
-    )
+    const wallets = await this._createWallets()
     for (const w of wallets) {
       await Promise.all([
         this._client.post(
@@ -200,7 +203,7 @@ export default class Me3 {
    * @param txRequest: parameters of a transaction {@link TransactionRequest}
    * @return string signedTransaction
    */
-  async signTx(wallet: Me3Wallet, txRequest) {
+  async signTx(wallet: Me3Wallet, txRequest): Promise<string> {
     const chains = await this._getChainList()
     const chainFound = _.chain(chains)
       .filter(c => _.toLower(c.name) === _.toLower(wallet.chainName))
@@ -212,16 +215,10 @@ export default class Me3 {
     const [, decipher] = v2.getWalletCiphers(this._userSecret)
 
     const refinedSeries = _.toLower(chainFound.series)
-    if (_.has(this._chainCtxs, refinedSeries)) {
-      return this._chainCtxs[refinedSeries].signTx(wallet, txRequest, decipher)
+    if (!_.has(this._chainCtxs, refinedSeries)) {
+      return Promise.reject(`Unsupported series ${refinedSeries}`)
     }
-
-    // Deprecated, let's migrate to new mode
-    return await signTransaction({
-      series: chainFound.series,
-      privateKey: decipher(wallet.secret),
-      transactionRequest: txRequest,
-    })
+    return this._chainCtxs[refinedSeries].signTx(chainFound, wallet, txRequest, decipher)
   }
 
   // private async _generateQR(content: string): Promise<string> {
@@ -258,11 +255,13 @@ export default class Me3 {
 
     for (const entry of _.entries(refined)) {
       const [series, chains] = entry
-      const _wallets = _.has(this._chainCtxs, series)
-        ? await this._chainCtxs[series].createWallet(chains, mnemonic, cipher)
-        // Deprecated way, please migrate to above
-        : await createWallet(entry, mnemonic)
 
+      if (!_.has(this._chainCtxs, series)) {
+        console.error(`[Me3::_getChainList] Unsupported series ${series}`)
+        continue
+      }
+
+      const _wallets = await this._chainCtxs[series].createWallet(chains, mnemonic, cipher)
       if (!_.isEmpty(_wallets)) {
         wallets.push(_wallets)
       }

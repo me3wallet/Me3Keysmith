@@ -1,18 +1,14 @@
 import _ from 'lodash'
 import * as bip39 from 'bip39'
 import * as bs58 from 'bs58'
-import { Connection, Keypair, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js'
 
-import { IChainContext } from '../common/context'
+import { IChainContext } from '../_share_/context'
 import { Me3Wallet } from '../../types'
-import { getWalletName } from '../../wallet/create-wallet/common'
+import { WalletCipher } from '../../safeV2/v2'
+import { getWalletName } from '../_share_/functions'
 
-// TODO: How to use mainChain's node?
-const RpcEndpoints = {
-  'sol': 'mainnet-beta',
-  'soldev': 'devnet',
-}
-export default class SolanaContext implements IChainContext {
+export class SolanaContext implements IChainContext {
   readonly series: string
 
   constructor(_series: string) {
@@ -22,7 +18,7 @@ export default class SolanaContext implements IChainContext {
   async createWallet(
     chains: any[],
     mnemonic: string,
-    pkCipher: (pk: string) => string
+    pkCipher: WalletCipher
   ): Promise<Me3Wallet[]> {
     const seed = await bip39.mnemonicToSeed(mnemonic)
     const keypair = Keypair.fromSeed(seed.subarray(0, 32))
@@ -38,13 +34,13 @@ export default class SolanaContext implements IChainContext {
   }
 
   async signTx(
+    mainChain,
     wallet: Me3Wallet,
     tx: Transaction,
     pkDecipher: (pk: string) => string
   ): Promise<string> {
     if (_.isEmpty(tx.recentBlockhash) || _.isNil(tx.lastValidBlockHeight)) {
-      const rpcURL = clusterApiUrl(RpcEndpoints[_.toLower(wallet.chainName)])
-      const solConn = new Connection(rpcURL)
+      const solConn = new Connection(mainChain.node)
       const lastHash = await solConn.getLatestBlockhash('confirmed')
       tx.recentBlockhash = lastHash.blockhash
       tx.lastValidBlockHeight = lastHash.lastValidBlockHeight

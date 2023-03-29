@@ -1,0 +1,1 @@
+export type TransactionRequest = Record<string, any>

@@ -36,7 +36,8 @@ export function decrypt(data: CommData, commSecret: CommSecret): string {
   return aes.decrypt(ret, commSecret.aesPwd!, commSecret.aesSalt!)
 }
 
-export function getWalletCiphers(krData) {
+export type WalletCipher = (key: string) => string
+export function getWalletCiphers(krData): WalletCipher[]  {
   if (_.isEmpty(krData)) {
     throw Error('Wrong KR info!')
   }
