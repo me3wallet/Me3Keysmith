@@ -1,12 +1,17 @@
+import _ from 'lodash'
 import * as bip39 from 'bip39'
 import * as bs58 from 'bs58'
-import web3, { Keypair } from '@solana/web3.js'
+import { Connection, Keypair, PublicKey, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 import { IChainContext } from '../common/context'
 import { Me3Wallet } from '../../types'
-
 import { getWalletName } from '../../wallet/create-wallet/common'
 
+// TODO: How to use mainChain's node?
+const RpcEndpoints = {
+  'sol': 'mainnet-beta',
+  'soldev': 'devnet',
+}
 export default class SolanaContext implements IChainContext {
   readonly series: string
 
@@ -32,14 +37,26 @@ export default class SolanaContext implements IChainContext {
     return wallets
   }
 
-  signTx(
+  async signTx(
     wallet: Me3Wallet,
-    tx: web3.Transaction,
+    tx: Transaction,
     pkDecipher: (pk: string) => string
-  ): string {
+  ): Promise<string> {
+    if (_.isEmpty(tx.recentBlockhash) || _.isNil(tx.lastValidBlockHeight)) {
+      const rpcURL = clusterApiUrl(RpcEndpoints[_.toLower(wallet.chainName)])
+      const solConn = new Connection(rpcURL)
+      const lastHash = await solConn.getLatestBlockhash('confirmed')
+      tx.recentBlockhash = lastHash.blockhash
+      tx.lastValidBlockHeight = lastHash.lastValidBlockHeight
+    }
+
     const rawPK = pkDecipher(wallet.secret)
     const rawPKBytes = bs58.decode(rawPK)
-    tx.sign(rawPKBytes)
-    return bs58.encode(tx.serialize())
+    tx.sign({
+      publicKey: new PublicKey(wallet.walletAddress),
+      secretKey: rawPKBytes,
+    })
+    const bytes = tx.serialize()
+    return bs58.encode(bytes)
   }
 }

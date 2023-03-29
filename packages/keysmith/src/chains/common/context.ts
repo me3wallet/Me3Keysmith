@@ -5,5 +5,5 @@ export interface IChainContext {
 
   createWallet(chains: any[], mnemonic: string, pkCipher: (pk: string) => string): Promise<Me3Wallet[]>
 
-  signTx(wallet: Me3Wallet, tx: any, pkDecipher: (pk: string) => string): string
+  signTx(wallet: Me3Wallet, tx: any, pkDecipher: (pk: string) => string): Promise<string>
 }
