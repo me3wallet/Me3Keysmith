@@ -46,4 +46,4 @@ Reminder of things to cover:
 ## Documentation
 
 - We have a separate GitHub Pages for Keysmith documentation
-- Please go to [Me3Keysmith-Documentation](https://github.com/AvartaDev/Me3Keysmith-Documentation) and update the documentation accordingly
+- Please go to [Me3Keysmith-Documentation](https://github.com/me3wallet/Me3Keysmith-Documentation) and update the documentation accordingly

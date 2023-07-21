@@ -1,4 +1,4 @@
-# AVARTA DEMO
+# Me3 DEMO
 
 ## How to use
 

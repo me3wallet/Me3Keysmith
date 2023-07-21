@@ -3,13 +3,12 @@
   "publishConfig": {
     "access": "restricted"
   },
-  "version": "3.0.4",
+  "version": "3.1.0",
   "description": "Me3 Key Generator Module",
   "keywords": [
     "me3",
     "keygen",
     "wallet",
-    "avarta",
     "sso",
     "wallet",
     "crypto"
@@ -17,15 +16,15 @@
   "author": "Me3",
   "repository": {
     "type": "git",
-    "url": "git@github.com:AvartaDev/Me3Keysmith.git"
+    "url": "git@github.com:me3wallet/Me3Keysmith.git"
   },
   "files": [
     "src/**/*",
     "dist/**/*"
   ],
-  "homepage": "https://github.com/AvartaDev/Me3Keysmith",
+  "homepage": "https://github.com/me3wallet/Me3Keysmith",
   "bugs": {
-    "url": "https://github.com/AvartaDev/Me3Keysmith/issues"
+    "url": "https://github.com/me3wallet/Me3Keysmith/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
