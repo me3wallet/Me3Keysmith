@@ -11,13 +11,13 @@
   "scripts": {
     "bootstrap": "lerna link && lerna bootstrap",
     "build": "lerna run build",
-    "dev": "lerna run dev --scope \"@me3/*\" --stream --parallel",
+    "dev": "lerna run dev --scope \"@me3wallet/*\" --stream --parallel",
     "prepare": "npm run bootstrap && npm run build",
-    "prerelease": "lerna exec yarn install --stream --scope \"@me3/*\" -- && lerna run build --scope \"@me3/*\"",
-    "serve": "lerna run --scope @me3/keysmith --stream --parallel --scope @me3/sample serve",
+    "prerelease": "lerna exec yarn install --stream --scope \"@me3wallet/*\" -- && lerna run build --scope \"@me3wallet/*\"",
+    "serve": "lerna run --scope @me3wallet/keysmith --stream --parallel --scope @me3wallet/sample serve",
     "lint": "eslint . --ext .ts --fix",
-    "test:keysmith": "lerna run test --scope @me3/keysmith",
-    "playground": "lerna run --scope @me3/keysmith playground"
+    "test:keysmith": "lerna run test --scope @me3wallet/keysmith",
+    "playground": "lerna run --scope @me3wallet/keysmith playground"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.185",

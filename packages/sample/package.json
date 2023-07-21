@@ -1,5 +1,5 @@
 {
-  "name": "@me3/sample",
+  "name": "@me3wallet/sample",
   "publishConfig": {
     "access": "restricted"
   },
@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@me3/keysmith": "^3.1.2",
+    "@me3wallet/keysmith": "^3.1.2",
     "ethers": "^6.0.8",
     "express": "^4.18.1",
     "ts-node-dev": "^2.0.0"
@@ -26,5 +26,6 @@
   },
   "resolutions": {
     "sharp": "0.28.0"
-  }
+  },
+  "gitHead": "f05575cc027dd2c996bb3f40d1190e4de99b3b3d"
 }

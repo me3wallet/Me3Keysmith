@@ -11,7 +11,7 @@ Keysmith enables you to create Me3 wallets invisibly. Simply integrate this modu
 ### 1. Initialize the `Me3` instance
 
 ```ts
-import pkg from "@me3/keysmith";
+import pkg from "@me3wallet/keysmith";
 const { Me3 } = pkg;
 
 const me3 = new Me3({

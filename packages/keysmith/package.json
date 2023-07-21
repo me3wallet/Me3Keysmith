@@ -1,5 +1,5 @@
 {
-  "name": "@me3/keysmith",
+  "name": "@me3wallet/keysmith",
   "publishConfig": {
     "access": "restricted"
   },
@@ -77,5 +77,6 @@
   },
   "resolutions": {
     "sharp": "0.28.0"
-  }
+  },
+  "gitHead": "f05575cc027dd2c996bb3f40d1190e4de99b3b3d"
 }
