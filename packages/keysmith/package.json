@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "restricted"
   },
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Me3 Key Generator Module",
   "keywords": [
     "me3",
