@@ -13,10 +13,10 @@
     "build": "lerna run build",
     "dev": "yarn bootstrap && yarn serve",
     "prepare": "npm run bootstrap && npm run build",
-    "prerelease": "lerna exec yarn install --stream --scope \"@me3technology/*\" -- && lerna run build --scope \"@me3technology/*\"",
-    "serve": "lerna run --scope @me3technology/keysmith --stream --parallel --scope @me3technology/sample serve",
+    "prerelease": "lerna exec yarn install --stream --scope \"@me3wallet/*\" -- && lerna run build --scope \"@me3wallet/*\"",
+    "serve": "lerna run --scope @me3wallet/keysmith --stream --parallel --scope @me3wallet/sample serve",
     "lint": "eslint . --ext .ts --fix",
-    "test:keysmith": "lerna run test --scope @me3technology/keysmith"
+    "test:keysmith": "lerna run test --scope @me3wallet/keysmith"
   },
   "devDependencies": {
     "lerna": "^6.1.0",
