@@ -53,7 +53,6 @@
     "ts-jest": "^28.0.8"
   },
   "dependencies": {
-    "@blitslabs/filecoin-js-signer": "^1.0.6",
     "@polkadot/keyring": "^10.1.8",
     "@polkadot/util": "^10.1.8",
     "@polkadot/util-crypto": "^10.1.8",

@@ -79,9 +79,9 @@ function createWallet(series, mnemonic) {
                             walletAddress: (0, util_crypto_1.encodeAddress)(publicKey),
                             secretRaw: (0, util_1.u8aToHex)(secretKey)
                         }];
-                case 6:
-                    signer = new filecoin_js_signer_1.FilecoinSigner();
-                    return [4, signer.wallet.keyDerive(mnemonic, 'm/44\'/461\'/0\'/0/0', 'mainnet')];
+                // case 6:
+                //     signer = new filecoin_js_signer_1.FilecoinSigner();
+                //     return [4, signer.wallet.keyDerive(mnemonic, 'm/44\'/461\'/0\'/0/0', 'mainnet')];
                 case 7:
                     key = _c.sent();
                     return [2, {

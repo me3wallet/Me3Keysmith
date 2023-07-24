@@ -1,9 +1,9 @@
 /// <reference types="node" />
-import { Readable } from 'stream';
+import { Readable } from 'stream'
 export default class Google {
-    private readonly _auth;
-    private readonly _drive;
-    private readonly _redirectUrl;
+    private readonly _auth
+    private readonly _drive
+    private readonly _redirectUrl
     constructor(clientId: string, clientSecret: string, redirectUrls: [string]);
     generateAuthUrl(): string;
     getTokens(redirectUrl: string): Promise<boolean>;
