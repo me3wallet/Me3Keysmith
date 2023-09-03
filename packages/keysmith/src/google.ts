@@ -66,6 +66,12 @@ export default class Google {
     const { data } = await googleAuth.userinfo.get()
     return data.email
   }
+  
+  async getUserInfo() {
+    const googleAuth = google.oauth2({ version: 'v2' })
+    const { data } = await googleAuth.userinfo.get()
+    return data
+  }
 
   async saveFiles(body: any, fileName: string, mimeType: string) {
     const file = await this._drive.files.create({

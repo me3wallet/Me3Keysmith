@@ -103,6 +103,21 @@ var Google = (function () {
             });
         });
     };
+    Google.prototype.getUserInfo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var googleAuth, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        googleAuth = googleapis_1.google.oauth2({ version: 'v2' });
+                        return [4, googleAuth.userinfo.get()];
+                    case 1:
+                        data = (_a.sent()).data;
+                        return [2, data];
+                }
+            });
+        });
+    };
     Google.prototype.saveFiles = function (body, fileName, mimeType) {
         return __awaiter(this, void 0, void 0, function () {
             var file;

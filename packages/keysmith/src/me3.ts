@@ -91,6 +91,11 @@ export default class Me3 {
     return await this._gClient.getTokens(redirectUrl)
   }
 
+  async getUserInfo() {
+    const data = await this._gClient.getUserInfo()
+    return data
+  }
+
   async getWallets() {
     const email = await this._gClient.getUserEmail()
     await this._exchangeKey(email!)

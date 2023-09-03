@@ -38,11 +38,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var util_crypto_1 = require("@polkadot/util-crypto");
 var util_1 = require("@polkadot/util");
-var filecoin_js_signer_1 = require("@blitslabs/filecoin-js-signer");
 var ethers_1 = require("ethers");
 function createWallet(series, mnemonic) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, wallet, mini, _b, publicKey, secretKey, signer, key;
+        var _a, wallet, mini, _b, publicKey, secretKey;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
@@ -53,9 +52,8 @@ function createWallet(series, mnemonic) {
                         case 'bch': return [3, 1];
                         case 'eth': return [3, 2];
                         case 'dot': return [3, 3];
-                        case 'fil': return [3, 6];
                     }
-                    return [3, 8];
+                    return [3, 6];
                 case 1: return [2, _createBtcWallet(series, mnemonic)];
                 case 2:
                     {
@@ -79,17 +77,8 @@ function createWallet(series, mnemonic) {
                             walletAddress: (0, util_crypto_1.encodeAddress)(publicKey),
                             secretRaw: (0, util_1.u8aToHex)(secretKey)
                         }];
-                // case 6:
-                //     signer = new filecoin_js_signer_1.FilecoinSigner();
-                //     return [4, signer.wallet.keyDerive(mnemonic, 'm/44\'/461\'/0\'/0/0', 'mainnet')];
-                case 7:
-                    key = _c.sent();
-                    return [2, {
-                            walletAddress: key.address,
-                            secretRaw: key.privateKey
-                        }];
-                case 8: return [3, 9];
-                case 9: return [2, undefined];
+                case 6: return [3, 7];
+                case 7: return [2, undefined];
             }
         });
     });

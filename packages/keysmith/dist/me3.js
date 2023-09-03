@@ -142,6 +142,19 @@ var Me3 = (function () {
             });
         });
     };
+    Me3.prototype.getUserInfo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._gClient.getUserInfo()];
+                    case 1:
+                        data = _a.sent();
+                        return [2, data];
+                }
+            });
+        });
+    };
     Me3.prototype.getWallets = function () {
         return __awaiter(this, void 0, void 0, function () {
             var email, data, isNewUser, cipher, wallets, _i, wallets_1, w;
