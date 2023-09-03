@@ -1,7 +1,7 @@
 declare const DriveName: {
     qr: string;
     json: string;
-};
+}
 interface ME3Config {
     endpoint: string;
     partnerId: string;
@@ -29,4 +29,4 @@ interface Me3Wallet {
     walletAddress: string;
     secret: string;
 }
-export { DriveName, ME3Config, RsaKey, CommSecret, CommData, Me3Wallet };
+export { DriveName, ME3Config, RsaKey, CommSecret, CommData, Me3Wallet }
