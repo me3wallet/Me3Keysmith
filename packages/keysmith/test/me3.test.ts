@@ -19,7 +19,7 @@ describe.skip('Me3 class testing', () => {
 
   it('Me3::getGAuthUrl', function () {
     const authURL = me3.getGAuthUrl()
-    console.log(authURL)
+  
     expect(authURL).to.be.ok
   })
 
@@ -30,7 +30,6 @@ describe.skip('Me3 class testing', () => {
 
   it('Me3::getWallets', async function () {
     const wallets = await me3.getWallets()
-    console.log(wallets)
     expect(wallets.length).to.deep.equal(15)
   })
 })
