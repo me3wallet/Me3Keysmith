@@ -15,13 +15,13 @@ export const signTransaction = async ({
         case 'eth': {
             return await performSignEvmTransaction(privateKey, transactionRequest)
         }
-        case 'ltc':
-        case 'bch':
-        case 'btc':
-        case 'fil':
-        case 'dot': {
-            throw new Error('Not implemented yet')
-        }
+        // case 'ltc':
+        // case 'bch':
+        // case 'btc':
+        // case 'fil':
+        // case 'dot': {
+        //     throw new Error('Not implemented yet')
+        // }
         default: {
             throw new Error('Unsupported series')
         }
